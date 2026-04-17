@@ -58,10 +58,20 @@ const menu = [
         icon: Settings,
         children: [
             {
+                title: "Setup",
+                children: [
+                    { title: "Setup TCode", href: "/setup/setup-tcode" },
+                    { title: "Setup Jurnal", href: "/setup/setup-jurnal" },
+                    { title: "Data BPR", href: "/setup/data-bpr" },
+                    { title: "Setup User", href: "/setup/setup-user" },
+                ],
+            },
+            {
                 title: "Keuangan",
                 children: [
                     { title: "Mata Uang", href: "/setup/keuangan/mata-uang" },
                     { title: "Kurs", href: "/setup/keuangan/kurs" },
+                    
                 ],
             },
             {

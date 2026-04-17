@@ -1,19 +1,25 @@
 import { notFound } from "next/navigation";
 
-export default function DynamicPage({ params }: any) {
-    const slug = params.slug?.join(" / ");
+export default async function DynamicPage({
+  params,
+}: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  const { slug } = await params;
 
-    if (!slug) return notFound();
+  if (!slug?.length) return notFound();
 
-    return (
-        <div>
-            <h1 className="text-2xl font-bold capitalize">
-                {slug.replace(/-/g, " ")}
-            </h1>
+  const joinedSlug = slug.join(" / ");
 
-            <p className="text-gray-500 mt-2">
-                Halaman module: {slug}
-            </p>
-        </div>
-    );
+  return (
+    <div>
+      <h1 className="text-2xl font-bold capitalize">
+        {joinedSlug.replace(/-/g, " ")}
+      </h1>
+
+      <p className="text-gray-500 mt-2">
+        Halaman module: {joinedSlug}
+      </p>
+    </div>
+  );
 }
