@@ -14,6 +14,7 @@ type Props = {
 export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
   const linkedCount = data.filter((item) => item.is_linked).length;
   const unlinkedCount = data.filter((item) => !item.is_linked).length;
+  const journalCount = data.filter((item) => item.journal).length;
   const journalReadyCount = data.filter((item) => item.journal_ready).length;
 
   return (
@@ -23,8 +24,8 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
           <h2 className="text-lg font-semibold">Relasi TCode</h2>
           <p className="text-sm text-gray-500">
             Pilih transaksi code yang aktif dan dapat digunakan untuk BPR ini.
-            Relasi hanya bisa diaktifkan jika setup journal untuk TCode tersebut
-            sudah dibuat.
+            Relasi hanya bisa diaktifkan jika setup journal pada dashboard MTD
+            untuk TCode tersebut sudah dibuat.
           </p>
         </div>
 
@@ -46,10 +47,10 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
         </div>
 
         <div className="rounded-xl border bg-gray-50 p-4">
-          <p className="text-sm text-gray-500">Unlinked</p>
+          <p className="text-sm text-gray-500">Journal</p>
           <div className="mt-1 flex items-center gap-2">
-            <p className="text-2xl font-semibold">{unlinkedCount}</p>
-            <Badge variant="outline">Nonaktif</Badge>
+            <p className="text-2xl font-semibold">{journalCount}</p>
+            <Badge variant="secondary">Setup MTD</Badge>
           </div>
         </div>
 
@@ -57,9 +58,17 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
           <p className="text-sm text-gray-500">Journal Ready</p>
           <div className="mt-1 flex items-center gap-2">
             <p className="text-2xl font-semibold">{journalReadyCount}</p>
-            <Badge variant="secondary">Journal</Badge>
+            <Badge variant="outline">Setup CMS</Badge>
           </div>
         </div>
+      </div>
+
+      <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <span className="font-semibold">Catatan:</span> Status <b>Journal</b>{" "}
+        menandakan admin sudah membuat setup journal di dashboard MTD. Status{" "}
+        <b>Journal Ready</b> menandakan user di CMS-IBPR sudah berhasil
+        menyimpan setup journal transaksi sesuai aturan yang dibuat di dashboard
+        MTD.
       </div>
 
       <BprTcodeTable data={data} onToggle={onToggle} />

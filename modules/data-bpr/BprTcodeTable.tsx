@@ -27,6 +27,9 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
               Journal
             </th>
             <th className="px-4 py-3 text-sm font-semibold text-gray-700">
+              Journal Ready
+            </th>
+            <th className="px-4 py-3 text-sm font-semibold text-gray-700">
               Status
             </th>
           </tr>
@@ -36,7 +39,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
           {data.length === 0 ? (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="px-4 py-8 text-center text-sm text-gray-500"
               >
                 Data relasi TCode belum tersedia
@@ -44,7 +47,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
             </tr>
           ) : (
             data.map((item) => {
-              const disableToggle = !item.journal_ready && !item.is_linked;
+              const disableToggle = !item.journal && !item.is_linked;
 
               return (
                 <tr key={item.id} className="border-b last:border-b-0">
@@ -57,7 +60,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
                       className="size-4 rounded border-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
                       title={
                         disableToggle
-                          ? "Relasi hanya dapat diaktifkan jika setup journal sudah dibuat"
+                          ? "Relasi hanya dapat diaktifkan jika setup journal di dashboard MTD sudah dibuat"
                           : "Toggle relasi TCode"
                       }
                     />
@@ -70,8 +73,16 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
                   </td>
 
                   <td className="px-4 py-3">
-                    <Badge variant={item.journal_ready ? "default" : "outline"}>
-                      {item.journal_ready ? "Sudah Dibuat" : "Belum Ada"}
+                    <Badge variant={item.journal ? "default" : "outline"}>
+                      {item.journal ? "Sudah Setup" : "Belum Setup"}
+                    </Badge>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <Badge
+                      variant={item.journal_ready ? "default" : "outline"}
+                    >
+                      {item.journal_ready ? "Ready" : "Belum Ready"}
                     </Badge>
                   </td>
 
@@ -81,7 +92,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
                         {item.is_linked ? "Linked" : "Unlinked"}
                       </Badge>
 
-                      {!item.journal_ready ? (
+                      {!item.journal ? (
                         <Badge variant="outline">Relasi Terkunci</Badge>
                       ) : null}
                     </div>

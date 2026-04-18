@@ -21,5 +21,6 @@ export type BprTcodeItem = {
   tcode: string;
   keterangan: string;
   is_linked: boolean;
-  journal_ready?: boolean;
+  journal: boolean;
+  journal_ready: boolean;
 };

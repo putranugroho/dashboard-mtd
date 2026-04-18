@@ -76,7 +76,7 @@ export default function DataBprPage() {
       prev.map((item) => {
         if (item.id !== tcodeId) return item;
 
-        const canEnable = item.journal_ready || item.is_linked;
+        const canEnable = item.journal || item.is_linked;
         if (!canEnable) return item;
 
         return {
@@ -107,8 +107,12 @@ export default function DataBprPage() {
 
       await saveBprTcodes(profile.bpr_id || selectedCode, linkedIds);
 
-      const refreshed = await getBprDetailWithTcodes(profile.bpr_id || selectedCode);
-      setProfile(refreshed.profile ?? emptyProfile(profile.bpr_id || selectedCode));
+      const refreshed = await getBprDetailWithTcodes(
+        profile.bpr_id || selectedCode
+      );
+      setProfile(
+        refreshed.profile ?? emptyProfile(profile.bpr_id || selectedCode)
+      );
       setTcodes(refreshed.tcodes ?? []);
 
       window.alert("Relasi TCode berhasil disimpan.");
