@@ -67,6 +67,14 @@ const menu = [
                 ],
             },
             {
+  title: "Monitoring",
+  children: [
+    { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
+    { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
+    { title: "Echo", href: "/monitoring/echo" },
+  ],
+},
+            {
                 title: "Keuangan",
                 children: [
                     { title: "Mata Uang", href: "/setup/keuangan/mata-uang" },

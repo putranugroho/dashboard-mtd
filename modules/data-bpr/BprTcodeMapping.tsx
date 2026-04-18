@@ -14,6 +14,7 @@ type Props = {
 export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
   const linkedCount = data.filter((item) => item.is_linked).length;
   const unlinkedCount = data.filter((item) => !item.is_linked).length;
+  const journalReadyCount = data.filter((item) => item.journal_ready).length;
 
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -22,13 +23,15 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
           <h2 className="text-lg font-semibold">Relasi TCode</h2>
           <p className="text-sm text-gray-500">
             Pilih transaksi code yang aktif dan dapat digunakan untuk BPR ini.
+            Relasi hanya bisa diaktifkan jika setup journal untuk TCode tersebut
+            sudah dibuat.
           </p>
         </div>
 
         <Button onClick={onSave}>Simpan Relasi TCode</Button>
       </div>
 
-      <div className="mb-5 grid gap-3 md:grid-cols-3">
+      <div className="mb-5 grid gap-3 md:grid-cols-4">
         <div className="rounded-xl border bg-gray-50 p-4">
           <p className="text-sm text-gray-500">Total TCode</p>
           <p className="mt-1 text-2xl font-semibold">{data.length}</p>
@@ -47,6 +50,14 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
           <div className="mt-1 flex items-center gap-2">
             <p className="text-2xl font-semibold">{unlinkedCount}</p>
             <Badge variant="outline">Nonaktif</Badge>
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-gray-50 p-4">
+          <p className="text-sm text-gray-500">Journal Ready</p>
+          <div className="mt-1 flex items-center gap-2">
+            <p className="text-2xl font-semibold">{journalReadyCount}</p>
+            <Badge variant="secondary">Journal</Badge>
           </div>
         </div>
       </div>

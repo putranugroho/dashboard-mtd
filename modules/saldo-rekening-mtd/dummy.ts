@@ -1,0 +1,60 @@
+import { SaldoRekeningItem } from "./types";
+
+export const saldoRekeningDummy: SaldoRekeningItem[] = [
+  {
+    no_rek: "1000101201000063",
+    nama: "TOYIBA",
+    saldoakhir: "29333436.89",
+    saldoeff: "29333436.89",
+    status_rek: "AKTIF",
+    gl_jsn: "2",
+  },
+  {
+    no_rek: "0210317",
+    nama: "PENAMPUNGAN TRANSFER",
+    saldoakhir: "-190000",
+    saldoeff: "-190000",
+    status_rek: "AKTIF",
+    gl_jsn: "2",
+  },
+  {
+    no_rek: "0210319",
+    nama: "TAGIHAN TRF CR",
+    saldoakhir: "0",
+    saldoeff: "0",
+    status_rek: "AKTIF",
+    gl_jsn: "1",
+  },
+  {
+    no_rek: "0210318",
+    nama: "PENAMPUNGAN TUNAI",
+    saldoakhir: "0",
+    saldoeff: "0",
+    status_rek: "AKTIF",
+    gl_jsn: "1",
+  },
+  {
+    no_rek: "0210314",
+    nama: "Titipan Angsuran KUR",
+    saldoakhir: "0",
+    saldoeff: "0",
+    status_rek: "AKTIF",
+    gl_jsn: "1",
+  },
+  {
+    no_rek: "1000101201000013",
+    nama: "BAMBANG HARI NUGROHO",
+    saldoakhir: "27126662.53",
+    saldoeff: "27076662.53",
+    status_rek: "AKTIF",
+    gl_jsn: "2",
+  },
+  {
+    no_rek: "1000101201000064",
+    nama: "ASMONO",
+    saldoakhir: "2386594.32",
+    saldoeff: "2361594.32",
+    status_rek: "AKTIF",
+    gl_jsn: "2",
+  },
+];

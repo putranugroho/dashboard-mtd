@@ -15,11 +15,13 @@ import {
 } from "@/components/ui/select";
 
 import { sourceTypeOptions } from "./dummy";
-import { JournalItem } from "./types-new";
+import { JournalItem, JournalRowErrors } from "./types-new";
 
 type Props = {
   item: JournalItem;
   index: number;
+  canRemove: boolean;
+  errors?: JournalRowErrors;
   onChange: (index: number, patch: Partial<JournalItem>) => void;
   onRemove: (index: number) => void;
 };
@@ -27,6 +29,8 @@ type Props = {
 export default function JournalRowForm({
   item,
   index,
+  canRemove,
+  errors,
   onChange,
   onRemove,
 }: Props) {
@@ -38,7 +42,7 @@ export default function JournalRowForm({
             Jurnal #{index + 1}
           </h3>
           <p className="text-xs text-gray-500">
-            Atur debit, kredit, dan keterangan jurnal
+            Journal No: {index} • Atur debit, kredit, dan keterangan jurnal
           </p>
         </div>
 
@@ -47,27 +51,19 @@ export default function JournalRowForm({
           variant="destructive"
           size="sm"
           onClick={() => onRemove(index)}
+          disabled={!canRemove}
+          title={
+            canRemove
+              ? "Hapus jurnal terakhir"
+              : "Hanya jurnal paling bawah yang bisa dihapus"
+          }
         >
           <Trash2 className="mr-1 size-4" />
           Hapus
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="grid gap-2">
-          <Label>Journal No</Label>
-          <Input
-            type="number"
-            min={0}
-            value={item.journal_no}
-            onChange={(e) =>
-              onChange(index, {
-                journal_no: Number(e.target.value),
-              })
-            }
-          />
-        </div>
-
+      <div className="grid gap-4 md:grid-cols-1">
         <div className="grid gap-2">
           <Label>Status</Label>
           <div className="flex gap-2">
@@ -108,7 +104,11 @@ export default function JournalRowForm({
             })
           }
           placeholder="Contoh: Jurnal PPOB Utama"
+          className={errors?.keterangan_jurnal ? "border-red-500" : ""}
         />
+        {errors?.keterangan_jurnal ? (
+          <p className="text-xs text-red-600">{errors.keterangan_jurnal}</p>
+        ) : null}
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -125,7 +125,7 @@ export default function JournalRowForm({
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={errors?.debit_source_type ? "border-red-500" : ""}>
                 <SelectValue placeholder="Pilih source debit" />
               </SelectTrigger>
               <SelectContent>
@@ -136,12 +136,15 @@ export default function JournalRowForm({
                 ))}
               </SelectContent>
             </Select>
+            {errors?.debit_source_type ? (
+              <p className="text-xs text-red-600">{errors.debit_source_type}</p>
+            ) : null}
           </div>
 
           <div className="mt-4 grid gap-2">
             <Label>Keterangan Debit</Label>
             <Textarea
-              className="min-h-[110px]"
+              className={`min-h-[110px] ${errors?.debit_keterangan ? "border-red-500" : ""}`}
               value={item.debit_keterangan}
               onChange={(e) =>
                 onChange(index, {
@@ -150,6 +153,9 @@ export default function JournalRowForm({
               }
               placeholder="Contoh: Menggunakan nomor rekening nasabah"
             />
+            {errors?.debit_keterangan ? (
+              <p className="text-xs text-red-600">{errors.debit_keterangan}</p>
+            ) : null}
           </div>
         </div>
 
@@ -166,7 +172,7 @@ export default function JournalRowForm({
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className={errors?.kredit_source_type ? "border-red-500" : ""}>
                 <SelectValue placeholder="Pilih source kredit" />
               </SelectTrigger>
               <SelectContent>
@@ -177,12 +183,15 @@ export default function JournalRowForm({
                 ))}
               </SelectContent>
             </Select>
+            {errors?.kredit_source_type ? (
+              <p className="text-xs text-red-600">{errors.kredit_source_type}</p>
+            ) : null}
           </div>
 
           <div className="mt-4 grid gap-2">
             <Label>Keterangan Kredit</Label>
             <Textarea
-              className="min-h-[110px]"
+              className={`min-h-[110px] ${errors?.kredit_keterangan ? "border-red-500" : ""}`}
               value={item.kredit_keterangan}
               onChange={(e) =>
                 onChange(index, {
@@ -191,6 +200,9 @@ export default function JournalRowForm({
               }
               placeholder="Contoh: Menggunakan nomor rekening MTD"
             />
+            {errors?.kredit_keterangan ? (
+              <p className="text-xs text-red-600">{errors.kredit_keterangan}</p>
+            ) : null}
           </div>
         </div>
       </div>

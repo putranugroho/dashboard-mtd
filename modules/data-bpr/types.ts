@@ -17,8 +17,9 @@ export type BprProfile = {
 };
 
 export type BprTcodeItem = {
-  tcode_id: number;
+  id: number;
   tcode: string;
   keterangan: string;
   is_linked: boolean;
+  journal_ready?: boolean;
 };

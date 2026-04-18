@@ -13,7 +13,6 @@ type ApiResponse<T> = {
 };
 
 type JournalDetailApi = {
-  tcode_id: number;
   tcode: string;
   keterangan: string;
   journals: JournalItem[];
@@ -30,29 +29,29 @@ export async function getJournalTcodes() {
   return res.data ?? [];
 }
 
-export async function getJournalDetail(tcodeId: number): Promise<JournalDetail> {
+export async function getJournalDetail(tcode: string): Promise<JournalDetail> {
   const res = await postJson<ApiResponse<JournalDetailApi>>("/tcode_journal", {
     action: "detail",
-    tcode_id: tcodeId,
+    tcode,
   });
 
   return res.data;
 }
 
 export async function saveJournalBulk(payload: {
-  tcode_id: number;
+  tcode: string;
   journals: JournalItem[];
   userlogin?: string;
 }) {
-  return postJson<ApiResponse<{ tcode_id: number; count: number }>>(
+  return postJson<ApiResponse<{ tcode: string; count: number }>>(
     "/tcode_journal_bulk",
     {
       action: "replace",
-      tcode_id: payload.tcode_id,
+      tcode: payload.tcode,
       userlogin: payload.userlogin || "admin",
-      journals: payload.journals.map((item) => ({
+      journals: payload.journals.map((item, index) => ({
         id: item.id,
-        journal_no: item.journal_no,
+        journal_no: index,
         keterangan_jurnal: item.keterangan_jurnal,
         debit_source_type: item.debit_source_type,
         debit_keterangan: item.debit_keterangan,

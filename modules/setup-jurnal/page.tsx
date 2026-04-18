@@ -5,12 +5,16 @@ import { useEffect, useMemo, useState } from "react";
 import JournalEditor from "./JournalEditor";
 import JournalTcodeList from "./JournalTcodeList";
 import { JournalDetail, JournalTcodeSummary } from "./types-new";
-import { getJournalDetail, getJournalTcodes, saveJournalBulk } from "@/lib/api/journal";
+import {
+  getJournalDetail,
+  getJournalTcodes,
+  saveJournalBulk,
+} from "@/lib/api/journal";
 
 export default function SetupJurnalPage() {
   const [query, setQuery] = useState("");
   const [tcodeList, setTcodeList] = useState<JournalTcodeSummary[]>([]);
-  const [selectedTcodeId, setSelectedTcodeId] = useState<number | null>(null);
+  const [selectedTcode, setSelectedTcode] = useState<string | null>(null);
   const [selectedDetail, setSelectedDetail] = useState<JournalDetail | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -21,26 +25,30 @@ export default function SetupJurnalPage() {
       const result = await getJournalTcodes();
       setTcodeList(result);
 
-      if (result.length > 0 && !selectedTcodeId) {
-        setSelectedTcodeId(result[0].tcode_id);
+      if (result.length > 0 && !selectedTcode) {
+        setSelectedTcode(result[0].tcode);
       }
     } catch (error) {
       console.error(error);
-      window.alert(error instanceof Error ? error.message : "Gagal memuat daftar jurnal");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal memuat daftar jurnal"
+      );
     } finally {
       setLoadingList(false);
     }
   };
 
-  const loadDetail = async (tcodeId: number) => {
+  const loadDetail = async (tcode: string) => {
     try {
       setLoadingDetail(true);
-      const result = await getJournalDetail(tcodeId);
+      const result = await getJournalDetail(tcode);
       setSelectedDetail(result);
     } catch (error) {
       console.error(error);
       setSelectedDetail(null);
-      window.alert(error instanceof Error ? error.message : "Gagal memuat detail jurnal");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal memuat detail jurnal"
+      );
     } finally {
       setLoadingDetail(false);
     }
@@ -51,10 +59,10 @@ export default function SetupJurnalPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedTcodeId) {
-      loadDetail(selectedTcodeId);
+    if (selectedTcode) {
+      loadDetail(selectedTcode);
     }
-  }, [selectedTcodeId]);
+  }, [selectedTcode]);
 
   const filteredList = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -69,22 +77,24 @@ export default function SetupJurnalPage() {
   }, [query, tcodeList]);
 
   const handleSelect = (item: JournalTcodeSummary) => {
-    setSelectedTcodeId(item.tcode_id);
+    setSelectedTcode(item.tcode);
   };
 
   const handleSave = async (detail: JournalDetail) => {
     try {
       await saveJournalBulk({
-        tcode_id: detail.tcode_id,
+        tcode: detail.tcode,
         journals: detail.journals,
       });
 
       await loadList();
-      await loadDetail(detail.tcode_id);
+      await loadDetail(detail.tcode);
       window.alert("Setup jurnal berhasil disimpan.");
     } catch (error) {
       console.error(error);
-      window.alert(error instanceof Error ? error.message : "Gagal menyimpan setup jurnal");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal menyimpan setup jurnal"
+      );
     }
   };
 
@@ -108,7 +118,7 @@ export default function SetupJurnalPage() {
             data={filteredList}
             query={query}
             onQueryChange={setQuery}
-            selectedTcodeId={selectedTcodeId}
+            selectedTcode={selectedTcode}
             onSelect={handleSelect}
           />
         )}

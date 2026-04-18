@@ -9,7 +9,7 @@ type Props = {
   data: JournalTcodeSummary[];
   query: string;
   onQueryChange: (value: string) => void;
-  selectedTcodeId: number | null;
+  selectedTcode: string | null;
   onSelect: (item: JournalTcodeSummary) => void;
 };
 
@@ -17,7 +17,7 @@ export default function JournalTcodeList({
   data,
   query,
   onQueryChange,
-  selectedTcodeId,
+  selectedTcode,
   onSelect,
 }: Props) {
   return (
@@ -46,11 +46,11 @@ export default function JournalTcodeList({
           </div>
         ) : (
           data.map((item) => {
-            const active = selectedTcodeId === item.tcode_id;
+            const active = selectedTcode === item.tcode;
 
             return (
               <button
-                key={item.tcode_id}
+                key={item.tcode}
                 type="button"
                 onClick={() => onSelect(item)}
                 className={`w-full rounded-xl border p-4 text-left transition ${

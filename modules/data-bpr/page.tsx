@@ -9,7 +9,11 @@ import { Input } from "@/components/ui/input";
 import BprForm from "./BprForm";
 import BprTcodeMapping from "./BprTcodeMapping";
 import { BprProfile, BprTcodeItem } from "./types";
-import { getBprDetailWithTcodes, saveBprProfile, saveBprTcodes } from "@/lib/api/bpr";
+import {
+  getBprDetailWithTcodes,
+  saveBprProfile,
+  saveBprTcodes,
+} from "@/lib/api/bpr";
 
 const emptyProfile = (bprId: string): BprProfile => ({
   bpr_id: bprId,
@@ -52,7 +56,9 @@ export default function DataBprPage() {
       setSelectedCode(code);
       setProfile(emptyProfile(code));
       setTcodes([]);
-      window.alert(error instanceof Error ? error.message : "Gagal memuat data BPR");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal memuat data BPR"
+      );
     } finally {
       setLoading(false);
     }
@@ -67,11 +73,17 @@ export default function DataBprPage() {
 
   const handleToggleTcode = (tcodeId: number) => {
     setTcodes((prev) =>
-      prev.map((item) =>
-        item.tcode_id === tcodeId
-          ? { ...item, is_linked: !item.is_linked }
-          : item
-      )
+      prev.map((item) => {
+        if (item.id !== tcodeId) return item;
+
+        const canEnable = item.journal_ready || item.is_linked;
+        if (!canEnable) return item;
+
+        return {
+          ...item,
+          is_linked: !item.is_linked,
+        };
+      })
     );
   };
 
@@ -81,7 +93,9 @@ export default function DataBprPage() {
       window.alert("Profile BPR berhasil disimpan.");
     } catch (error) {
       console.error(error);
-      window.alert(error instanceof Error ? error.message : "Gagal menyimpan profile BPR");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal menyimpan profile BPR"
+      );
     }
   };
 
@@ -89,11 +103,10 @@ export default function DataBprPage() {
     try {
       const linkedIds = tcodes
         .filter((item) => item.is_linked)
-        .map((item) => item.tcode_id);
+        .map((item) => item.id);
 
       await saveBprTcodes(profile.bpr_id || selectedCode, linkedIds);
 
-      // reload ulang supaya checkbox benar-benar sinkron dari backend
       const refreshed = await getBprDetailWithTcodes(profile.bpr_id || selectedCode);
       setProfile(refreshed.profile ?? emptyProfile(profile.bpr_id || selectedCode));
       setTcodes(refreshed.tcodes ?? []);
@@ -101,7 +114,9 @@ export default function DataBprPage() {
       window.alert("Relasi TCode berhasil disimpan.");
     } catch (error) {
       console.error(error);
-      window.alert(error instanceof Error ? error.message : "Gagal menyimpan relasi TCode");
+      window.alert(
+        error instanceof Error ? error.message : "Gagal menyimpan relasi TCode"
+      );
     }
   };
 
@@ -112,7 +127,8 @@ export default function DataBprPage() {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Data BPR</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Kelola profile BPR dan relasi transaksi code yang aktif untuk masing-masing BPR.
+              Kelola profile BPR dan relasi transaksi code yang aktif untuk
+              masing-masing BPR.
             </p>
           </div>
 
