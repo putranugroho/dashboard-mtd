@@ -4,11 +4,11 @@ import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { getSaldoMTD } from "@/lib/api/saldo-mtd";
 import SaldoSearchForm from "./SaldoSearchForm";
 import SaldoSummaryCards from "./SaldoSummaryCard";
 import SaldoTable from "./SaldoTable";
-import { saldoRekeningDummy } from "./dummy";
-import { SaldoRekeningItem, SaldoSummary } from "./types";
+import { SaldoMTDItem, SaldoSummary } from "./types";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -23,9 +23,9 @@ function toNumber(value: string) {
   return Number.isNaN(num) ? 0 : num;
 }
 
-function buildSummary(data: SaldoRekeningItem[]): SaldoSummary {
-  const rekening = data.filter((item) => item.gl_jsn === "2");
-  const gl = data.filter((item) => item.gl_jsn === "1");
+function buildSummary(data: SaldoMTDItem[]): SaldoSummary {
+  const rekening = data.filter((item) => item.jns_rek === "2");
+  const gl = data.filter((item) => item.jns_rek === "1");
 
   const totalRekening = rekening.reduce(
     (acc, item) => acc + toNumber(item.saldoakhir),
@@ -44,7 +44,7 @@ function buildSummary(data: SaldoRekeningItem[]): SaldoSummary {
   };
 }
 
-function downloadCsv(filename: string, rows: SaldoRekeningItem[]) {
+function downloadCsv(filename: string, rows: SaldoMTDItem[]) {
   const headers = [
     "Jenis",
     "No Rekening / GL",
@@ -55,7 +55,7 @@ function downloadCsv(filename: string, rows: SaldoRekeningItem[]) {
   ];
 
   const content = rows.map((item) => [
-    item.gl_jsn === "1" ? "GL" : "REKENING",
+    item.jns_rek === "1" ? "GL" : "REKENING",
     item.no_rek,
     item.nama,
     item.saldoakhir,
@@ -88,15 +88,15 @@ export default function SaldoRekeningMTDPage() {
   const [bprId, setBprId] = useState("");
   const [searchedBprId, setSearchedBprId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<SaldoRekeningItem[]>([]);
+  const [data, setData] = useState<SaldoMTDItem[]>([]);
 
   const rekeningData = useMemo(
-    () => data.filter((item) => item.gl_jsn === "2"),
+    () => data.filter((item) => item.jns_rek === "2"),
     [data]
   );
 
   const glData = useMemo(
-    () => data.filter((item) => item.gl_jsn === "1"),
+    () => data.filter((item) => item.jns_rek === "1"),
     [data]
   );
 
@@ -111,14 +111,17 @@ export default function SaldoRekeningMTDPage() {
     try {
       setLoading(true);
 
-      // sementara dummy dulu
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const result = await getSaldoMTD(bprId.trim());
 
-      setData(saldoRekeningDummy);
+      setData(result);
       setSearchedBprId(bprId.trim());
     } catch (error) {
       console.error(error);
-      window.alert("Gagal memuat data saldo rekening.");
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Gagal memuat data saldo rekening."
+      );
     } finally {
       setLoading(false);
     }
@@ -146,7 +149,7 @@ export default function SaldoRekeningMTDPage() {
                 Hasil Inquiry BPR ID: {searchedBprId}
               </h2>
               <p className="text-sm text-gray-500">
-                Data sementara masih menggunakan dummy response.
+                Data ditampilkan dari hasil inquiry saldo MTD.
               </p>
             </div>
 
