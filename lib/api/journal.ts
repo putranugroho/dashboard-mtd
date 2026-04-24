@@ -35,7 +35,14 @@ export async function getJournalDetail(tcode: string): Promise<JournalDetail> {
     tcode,
   });
 
-  return res.data;
+  const data = res.data;
+
+  return {
+    tcode_id: Number(tcode), // ✅ mapping manual
+    tcode: data.tcode,
+    keterangan: data.keterangan,
+    journals: data.journals,
+  };
 }
 
 export async function saveJournalBulk(payload: {

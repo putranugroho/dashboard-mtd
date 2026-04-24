@@ -66,6 +66,7 @@ const menu = [
                     { title: "Setup Journal Accounting", href: "/setup/setup-journal-accounting" },
                     { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi" },
                     { title: "Setup User", href: "/setup/setup-user" },
+                    { title: "Setup Fee", href: "/setup/setup-fee" },
                 ],
             },
             {

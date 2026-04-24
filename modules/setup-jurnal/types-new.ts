@@ -1,4 +1,5 @@
 export type JournalTcodeSummary = {
+  tcode_id: number;
   tcode: string;
   keterangan: string;
   jml_jurnal: number;
@@ -16,6 +17,7 @@ export type JournalItem = {
 };
 
 export type JournalDetail = {
+  tcode_id: number;
   tcode: string;
   keterangan: string;
   journals: JournalItem[];
