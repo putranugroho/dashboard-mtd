@@ -69,13 +69,14 @@ const menu = [
                 ],
             },
             {
-  title: "Monitoring",
-  children: [
-    { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
-    { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
-    { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
-  ],
-},
+                title: "Monitoring",
+                children: [
+                    { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
+                    { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
+                    { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr" },
+                    { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
+                ],
+            },
             {
                 title: "Keuangan",
                 children: [
