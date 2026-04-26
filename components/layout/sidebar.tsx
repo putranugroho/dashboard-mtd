@@ -63,6 +63,7 @@ const menu = [
                     { title: "Setup TCode", href: "/setup/setup-tcode" },
                     { title: "Setup Jurnal", href: "/setup/setup-jurnal" },
                     { title: "Data BPR", href: "/setup/data-bpr" },
+                    { title: "Setup Merchant", href: "/setup/setup-merchant" },
                     { title: "Setup Journal Accounting", href: "/setup/setup-journal-accounting" },
                     { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi" },
                     { title: "Setup User", href: "/setup/setup-user" },

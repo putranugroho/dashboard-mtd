@@ -4,6 +4,13 @@ export type GatewayMonitorStatus =
   | "WARNING"
   | "NORMAL";
 
+export type GatewayMonitorSortBy =
+  | "severity"
+  | "nama_bpr"
+  | "bpr_id"
+  | "status"
+  | "checked_at";
+
 export type GatewayMonitorItem = {
   bpr_id: string;
   nama_bpr: string;
