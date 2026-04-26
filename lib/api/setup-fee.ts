@@ -11,6 +11,11 @@ export type TransferOut = {
     markup_bpr: number;
 };
 
+export type FeatureMotion = {
+    is_inquiry_allowed: boolean;
+    is_transaction_allowed: boolean;
+};
+
 export type PPOB = {
     id?: number;
     bpr_id: string;
@@ -31,6 +36,7 @@ export type SetupFeeData = {
     transfer_out: TransferOut[] | null;
     ppob: PPOB[] | null;
     mtn: MTN[] | null;
+    feature_motion?: FeatureMotion;
 };
 
 type ApiResponse<T> = {
@@ -56,6 +62,7 @@ export async function getSetupFee(bpr_id: string) {
         transfer_out: res.data?.transfer_out ?? [],
         ppob: res.data?.ppob ?? [],
         mtn: res.data?.mtn ?? [],
+        feature_motion: res.data?.feature_motion,
     };
 }
 
@@ -69,7 +76,7 @@ export async function saveSetupFee(payload: {
     userlogin?: string;
 }) {
     return postJson<ApiResponse<null>>("/setup_fee", {
-        action: "insert", 
+        action: "insert",
         userlogin: payload.userlogin || "admin",
         data_transfer_out: payload.transfer_out,
         data_ppob: payload.ppob,
@@ -88,7 +95,7 @@ export async function deleteSetupFee(
         userlogin,
         data_transfer_out: [{ bpr_id }],
         data_ppob: [{ bpr_id }],
-        data_mtn: [], 
+        data_mtn: [],
     });
 }
 

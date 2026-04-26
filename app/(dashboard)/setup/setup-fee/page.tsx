@@ -5,7 +5,7 @@ import { useState } from "react";
 import SetupMTN from "./SetupMTN";
 import SetupPPOB from "./SetupPPOB";
 import SetupTransferOut from "./SetupTransferOut";
-
+import SetupFeatureMotion from "./SetupFeatureMotion";
 
 export default function SetupFeePage() {
     const [tab, setTab] = useState("mtn");
@@ -33,6 +33,9 @@ export default function SetupFeePage() {
                         <button onClick={() => setTab("transfer_out")} className="menu">
                             Setup Transfer Out
                         </button>
+                        <button onClick={() => setTab("feature_motion")} className="menu">
+                            Setup Feature Motion
+                        </button>
                     </div>
                 </div>
 
@@ -41,6 +44,7 @@ export default function SetupFeePage() {
                     {tab === "mtn" && <SetupMTN />}
                     {tab === "ppob" && <SetupPPOB />}
                     {tab === "transfer_out" && <SetupTransferOut />}
+                    {tab === "feature_motion" && <SetupFeatureMotion />}
                 </div>
             </div>
         </div>
