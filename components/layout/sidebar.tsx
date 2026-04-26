@@ -63,6 +63,7 @@ const menu = [
                     { title: "Setup TCode", href: "/setup/setup-tcode" },
                     { title: "Setup Jurnal", href: "/setup/setup-jurnal" },
                     { title: "Data BPR", href: "/setup/data-bpr" },
+                    { title: "Setup Merchant", href: "/setup/setup-merchant" },
                     { title: "Setup Journal Accounting", href: "/setup/setup-journal-accounting" },
                     { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi" },
                     { title: "Setup User", href: "/setup/setup-user" },
@@ -70,13 +71,14 @@ const menu = [
                 ],
             },
             {
-  title: "Monitoring",
-  children: [
-    { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
-    { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
-    { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
-  ],
-},
+                title: "Monitoring",
+                children: [
+                    { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
+                    { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
+                    { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr" },
+                    { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
+                ],
+            },
             {
                 title: "Keuangan",
                 children: [
