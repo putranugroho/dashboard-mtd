@@ -19,6 +19,7 @@ export type GatewayMonitorItem = {
   reason: string;
   checked_at: string;
   echo_success: boolean;
+  core_status?: string;
 };
 
 export type GatewayMonitorSummary = {

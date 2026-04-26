@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { getBprDetailWithTcodes } from "@/lib/api/bpr";
+import { checkAllGatewayStatuses } from "@/lib/api/monitoring-gateway";
 import { BprProfile } from "@/modules/data-bpr/types";
 import BprContactDialog from "./BprContactDialog";
 import MonitoringGatewayGrid from "./MonitoringGatewayGrid";
 import MonitoringGatewayHeader from "./MonitoringGatewayHeader";
 import MonitoringGatewaySummary from "./MonitoringGatewaySummary";
-import { gatewayMonitorDummy } from "./dummy";
 import { GatewayMonitorItem, GatewayMonitorSortBy } from "./types";
 import {
   buildGatewaySummary,
@@ -35,18 +35,38 @@ export default function MonitoringGatewayBPRPage() {
   const [lastChecked, setLastChecked] = useState("");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<GatewayMonitorSortBy>("severity");
-  const [items, setItems] = useState<GatewayMonitorItem[]>(
-    sortGatewayMonitorItems(gatewayMonitorDummy, "severity")
-  );
+  const [items, setItems] = useState<GatewayMonitorItem[]>([]);
 
   const [picOpen, setPicOpen] = useState(false);
   const [picLoading, setPicLoading] = useState(false);
   const [picError, setPicError] = useState("");
-  const [selectedItem, setSelectedItem] = useState<GatewayMonitorItem | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<BprProfile | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GatewayMonitorItem | null>(
+    null
+  );
+  const [selectedProfile, setSelectedProfile] = useState<BprProfile | null>(
+    null
+  );
+
+  const loadMonitoring = async () => {
+    try {
+      setLoading(true);
+
+      const result = await checkAllGatewayStatuses();
+
+      setItems(sortGatewayMonitorItems(result, "severity"));
+      setLastChecked(nowString());
+    } catch (error) {
+      console.error(error);
+      window.alert("Gagal mengambil data monitoring gateway.");
+      setItems([]);
+      setLastChecked(nowString());
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLastChecked(nowString());
+    loadMonitoring();
   }, []);
 
   const summary = useMemo(() => buildGatewaySummary(items), [items]);
@@ -62,19 +82,7 @@ export default function MonitoringGatewayBPRPage() {
   );
 
   const handleRefresh = async () => {
-    try {
-      setLoading(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setItems(sortGatewayMonitorItems(gatewayMonitorDummy, "severity"));
-      setLastChecked(nowString());
-    } catch (error) {
-      console.error(error);
-      window.alert("Gagal me-refresh data monitoring gateway.");
-    } finally {
-      setLoading(false);
-    }
+    await loadMonitoring();
   };
 
   const handleOpenPIC = async (item: GatewayMonitorItem) => {
@@ -96,6 +104,7 @@ export default function MonitoringGatewayBPRPage() {
       setSelectedProfile(detail.profile);
     } catch (error) {
       console.error(error);
+
       setSelectedProfile({
         bpr_id: item.bpr_id,
         nama_bpr: item.nama_bpr,

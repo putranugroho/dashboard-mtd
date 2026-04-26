@@ -114,6 +114,7 @@ function GatewayTable({
                       </div>
                       <div className="text-xs text-gray-500">
                         Echo: {item.echo_success ? "success" : "failed"}
+                        {item.core_status ? ` • Core: ${item.core_status}` : ""}
                       </div>
                     </td>
 
