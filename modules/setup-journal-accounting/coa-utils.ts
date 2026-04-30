@@ -20,10 +20,12 @@ function walkNodes(
     let nextParent = parent;
 
     if (currentJns === "B") {
+      const bbCode = node.nosbb || node.nobb || "";
+
       nextParent = {
         namaBB: node.nama_sbb || "",
-        noBB: node.nobb || "",
-        noSbbBB: node.nosbb || "",
+        noBB: bbCode,
+        noSbbBB: bbCode,
         golAcc: node.gol_acc || "",
       };
     }

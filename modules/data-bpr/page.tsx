@@ -76,7 +76,7 @@ export default function DataBprPage() {
       prev.map((item) => {
         if (item.id !== tcodeId) return item;
 
-        const canEnable = item.journal || item.is_linked;
+        const canEnable = item.journal;
         if (!canEnable) return item;
 
         return {

@@ -34,6 +34,33 @@ function normalizeJournals(
   }));
 }
 
+function normalizeJournalCoaValues(
+  journals: JournalAccountingItem[],
+  coaOptions: AccountingCoaOption[]
+): JournalAccountingItem[] {
+  return journals.map((item) => {
+    const debitOption = coaOptions.find(
+      (option) => option.nosbb === item.debit_nosbb
+    );
+
+    const kreditOption = coaOptions.find(
+      (option) => option.nosbb === item.kredit_nosbb
+    );
+
+    return {
+      ...item,
+
+      debit_nobb: debitOption?.nobb || item.debit_nobb,
+      debit_nama_bb: debitOption?.nama_bb || item.debit_nama_bb,
+      debit_gol_acc: debitOption?.gol_acc || item.debit_gol_acc,
+
+      kredit_nobb: kreditOption?.nobb || item.kredit_nobb,
+      kredit_nama_bb: kreditOption?.nama_bb || item.kredit_nama_bb,
+      kredit_gol_acc: kreditOption?.gol_acc || item.kredit_gol_acc,
+    };
+  });
+}
+
 export default function AccountingJournalEditor({
   detail,
   coaOptions,
@@ -67,9 +94,11 @@ export default function AccountingJournalEditor({
 
     return {
       ...localDetail,
-      journals: normalizeJournals(localDetail.journals),
+      journals: normalizeJournals(
+        normalizeJournalCoaValues(localDetail.journals, coaOptions)
+      ),
     };
-  }, [localDetail]);
+  }, [localDetail, coaOptions]);
 
   const updateDetail = (next: JournalAccountingDetail) => {
     setLocalDetail(next);

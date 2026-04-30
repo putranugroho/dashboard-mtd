@@ -27,9 +27,19 @@ export default function AccountingCoaSelect({
   disabled,
 }: Props) {
   const bbOptions = getUniqueBB(options);
-  const sbbOptions = valueNoBB ? getSbbByBB(options, valueNoBB) : [];
 
-  const selectedBB = bbOptions.find((item) => item.nobb === valueNoBB);
+  const selectedOptionBySBB = options.find(
+    (item) => item.nosbb === valueNoSBB
+  );
+
+  const effectiveNoBB =
+    valueNoBB && bbOptions.some((item) => item.nobb === valueNoBB)
+      ? valueNoBB
+      : selectedOptionBySBB?.nobb || "";
+
+  const sbbOptions = effectiveNoBB ? getSbbByBB(options, effectiveNoBB) : [];
+
+  const selectedBB = bbOptions.find((item) => item.nobb === effectiveNoBB);
   const selectedSBB = sbbOptions.find((item) => item.nosbb === valueNoSBB);
 
   return (
@@ -38,14 +48,10 @@ export default function AccountingCoaSelect({
         <label className="text-sm font-semibold text-gray-700">
           Buku Besar
         </label>
-        <Select
-          value={valueNoBB || undefined}
-          onValueChange={(nextBB) => {
-            if (!nextBB) {
-              onSelect(null);
-              return;
-            }
 
+        <Select
+          value={effectiveNoBB || undefined}
+          onValueChange={(nextBB) => {
             const firstSbb = getSbbByBB(options, nextBB)[0];
             onSelect(firstSbb ?? null);
           }}
@@ -62,6 +68,7 @@ export default function AccountingCoaSelect({
             ))}
           </SelectContent>
         </Select>
+
         <div className="text-sm text-gray-600">
           No. BB:{" "}
           <span className="font-semibold text-gray-800">
@@ -74,13 +81,14 @@ export default function AccountingCoaSelect({
         <label className="text-sm font-semibold text-gray-700">
           Sub Buku Besar
         </label>
+
         <Select
           value={valueNoSBB || undefined}
           onValueChange={(nextSbb) => {
             const selected = sbbOptions.find((item) => item.nosbb === nextSbb);
             onSelect(selected ?? null);
           }}
-          disabled={disabled || !valueNoBB}
+          disabled={disabled || !effectiveNoBB}
         >
           <SelectTrigger className="h-11 text-sm">
             <SelectValue placeholder="Pilih Sub Buku Besar" />
@@ -93,6 +101,7 @@ export default function AccountingCoaSelect({
             ))}
           </SelectContent>
         </Select>
+
         <div className="text-sm text-gray-600">
           No. SBB:{" "}
           <span className="font-semibold text-gray-800">
