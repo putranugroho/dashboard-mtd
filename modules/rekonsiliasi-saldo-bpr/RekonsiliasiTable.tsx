@@ -6,6 +6,7 @@ import { formatCurrency } from "./utils";
 type Props = {
   rows: RekonsiliasiRow[];
   loading: boolean;
+  onOpenDetail?: (row: RekonsiliasiRow) => void;
 };
 
 function CellBox({
@@ -41,7 +42,11 @@ function TypePill({ value }: { value: "REK" | "GL" }) {
   );
 }
 
-export default function RekonsiliasiTable({ rows, loading }: Props) {
+export default function RekonsiliasiTable({
+  rows,
+  loading,
+  onOpenDetail,
+}: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
       <h2 className="mb-6 text-2xl font-semibold text-gray-800">
@@ -100,9 +105,23 @@ export default function RekonsiliasiTable({ rows, loading }: Props) {
             <CellBox
               key={`selisih-${row.source_code}-${index}`}
               tone="selisih"
-              className="text-right font-semibold"
+              className={`text-right font-semibold ${
+                row.selisih !== 0 ? "cursor-pointer hover:ring-2 hover:ring-red-300" : ""
+              }`}
             >
-              {formatCurrency(row.selisih)}
+              <button
+                type="button"
+                disabled={row.selisih === 0}
+                onClick={() => onOpenDetail?.(row)}
+                className="w-full text-right disabled:cursor-default"
+                title={
+                  row.selisih !== 0
+                    ? "Klik untuk melihat detail selisih transaksi"
+                    : "Tidak ada selisih"
+                }
+              >
+                {formatCurrency(row.selisih)}
+              </button>
             </CellBox>
 
             <CellBox

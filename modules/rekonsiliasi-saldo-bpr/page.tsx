@@ -9,6 +9,7 @@ import { getSaldoMTD } from "@/lib/api/saldo-mtd";
 
 import RekonsiliasiSearchForm from "./RekonsiliasiSearchForm";
 import RekonsiliasiTable from "./RekonsiliasiTable";
+import RekonsiliasiDetailPage from "./RekonsiliasiDetailPage";
 import { RekonsiliasiRow } from "./types";
 import {
   buildRekonsiliasiRows,
@@ -22,6 +23,7 @@ export default function RekonsiliasiSaldoBPRPage() {
   const [reconAt, setReconAt] = useState("");
   const [rows, setRows] = useState<RekonsiliasiRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedDiffRow, setSelectedDiffRow] = useState<RekonsiliasiRow | null>(null);
 
   const handleRekon = async () => {
     const nextBprId = bprId.trim();
@@ -54,6 +56,7 @@ export default function RekonsiliasiSaldoBPRPage() {
       setBprName(bprDetail?.profile?.nama_bpr || "");
       setReconAt(nowLabel);
       setRows(resultRows);
+      setSelectedDiffRow(null);
     } catch (error) {
       console.error(error);
       setRows([]);
@@ -81,18 +84,37 @@ export default function RekonsiliasiSaldoBPRPage() {
 
   return (
     <div className="space-y-6">
-      <RekonsiliasiSearchForm
-        bprId={bprId}
-        bprName={bprName}
-        reconAt={reconAt}
-        loading={loading}
-        canDownload={rows.length > 0}
-        onChangeBprId={setBprId}
-        onRekon={handleRekon}
-        onDownload={handleDownload}
-      />
+      {selectedDiffRow ? (
+        <RekonsiliasiDetailPage
+          row={selectedDiffRow}
+          onBack={() => setSelectedDiffRow(null)}
+        />
+      ) : (
+        <>
+          <RekonsiliasiSearchForm
+            bprId={bprId}
+            bprName={bprName}
+            reconAt={reconAt}
+            loading={loading}
+            canDownload={rows.length > 0}
+            onChangeBprId={(value, item) => {
+              setBprId(value);
+              setBprName(item?.nama_bpr || "");
+              setRows([]);
+              setReconAt("");
+              setSelectedDiffRow(null);
+            }}
+            onRekon={handleRekon}
+            onDownload={handleDownload}
+          />
 
-      <RekonsiliasiTable rows={rows} loading={loading} />
+          <RekonsiliasiTable
+            rows={rows}
+            loading={loading}
+            onOpenDetail={setSelectedDiffRow}
+          />
+        </>
+      )}
     </div>
   );
 }

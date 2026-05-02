@@ -68,3 +68,16 @@ export type RekonsiliasiBuildInput = {
   saldoGLItems: SaldoGLItem[];
   reconAt: string;
 };
+
+export type RekonTransactionItem = {
+  tgl_trans: string;
+  no_dok: string;
+  rrn: string;
+  keterangan: string;
+  nominal: number;
+};
+
+export type RekonTransactionDiffResult = {
+  missingInAccounting: RekonTransactionItem[];
+  missingInCore: RekonTransactionItem[];
+};

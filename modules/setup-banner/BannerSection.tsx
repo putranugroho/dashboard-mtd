@@ -33,8 +33,19 @@ type Props = {
 };
 
 function getNextOrder(data: BannerItem[]) {
-  if (data.length === 0) return 1;
-  return Math.max(...data.map((item) => Number(item.urutan || 0))) + 1;
+  const used = new Set(
+    data
+      .filter((item) => item.is_active)
+      .map((item) => Number(item.urutan || 0))
+      .filter((value) => value > 0)
+  );
+
+  let next = 1;
+  while (used.has(next)) {
+    next += 1;
+  }
+
+  return next;
 }
 
 export default function BannerSection({
@@ -54,6 +65,7 @@ export default function BannerSection({
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<BannerItem | null>(null);
+  const disableCreate = scopeType === "BPR" && !bprId.trim();
 
   const filteredData = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -126,11 +138,12 @@ export default function BannerSection({
 
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
-                <Button type="button" onClick={handleCreate}>
+                <Button type="button" onClick={handleCreate} disabled={disableCreate}>
                   <Plus className="mr-1 size-4" />
                   Tambah Banner
                 </Button>
               </SheetTrigger>
+
 
               <SheetContent side="right" className="w-full overflow-y-auto rounded-l-2xl bg-white p-0 sm:max-w-[640px]">
                 <SheetHeader className="border-b">

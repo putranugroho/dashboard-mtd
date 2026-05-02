@@ -13,6 +13,7 @@ type Props = {
   scopeType: BannerScopeType;
   bprId?: string;
   nextOrder: number;
+  existingOrders?: number[];
   initialData?: BannerItem | null;
   submitting?: boolean;
   onSubmit: (values: BannerFormValues) => Promise<void> | void;
@@ -41,6 +42,7 @@ export default function BannerForm({
   scopeType,
   bprId = "",
   nextOrder,
+  existingOrders = [],
   initialData,
   submitting,
   onSubmit,
@@ -51,6 +53,7 @@ export default function BannerForm({
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -75,6 +78,20 @@ export default function BannerForm({
     setVideoFile(null);
   }, [initialData, scopeType, bprId, nextOrder]);
 
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreviewUrl("");
+      return;
+    }
+
+    const url = URL.createObjectURL(imageFile);
+    setImagePreviewUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [imageFile]);
+
   const title = useMemo(() => {
     if (scopeType === "GLOBAL") return "Banner Global";
     return `Banner Khusus BPR ${bprId || "-"}`;
@@ -82,7 +99,7 @@ export default function BannerForm({
 
   const handleSubmit = async () => {
     if (scopeType === "BPR" && !form.bpr_id.trim()) {
-      window.alert("BPR ID wajib diisi untuk banner khusus BPR.");
+      window.alert("BPR wajib dipilih untuk banner khusus BPR.");
       return;
     }
 
@@ -91,8 +108,20 @@ export default function BannerForm({
       return;
     }
 
-    if (!form.urutan || form.urutan < 1) {
+    const nextUrutan = Number(form.urutan || 0);
+
+    if (!nextUrutan || nextUrutan < 1) {
       window.alert("Urutan banner minimal 1.");
+      return;
+    }
+
+    const currentInitialOrder = Number(initialData?.urutan || 0);
+    const isDuplicateOrder =
+      existingOrders.includes(nextUrutan) &&
+      !(mode === "edit" && nextUrutan === currentInitialOrder);
+
+    if (isDuplicateOrder) {
+      window.alert(`Urutan #${nextUrutan} sudah digunakan. Silakan pilih urutan lain.`);
       return;
     }
 
@@ -136,7 +165,7 @@ export default function BannerForm({
         image_file: nextImageFile,
         video_file: form.banner_type === "VIDEO" ? nextVideoFile : "",
         text_content: form.banner_type === "TEXT" ? form.text_content.trim() : "",
-        urutan: Number(form.urutan || 1),
+        urutan: nextUrutan,
       });
     } catch (error) {
       console.error(error);
@@ -153,21 +182,15 @@ export default function BannerForm({
       <div className="rounded-xl border bg-gray-50 p-4">
         <p className="text-sm font-semibold text-gray-900">{title}</p>
         <p className="mt-1 text-xs text-gray-500">
-          Urutan otomatis dimulai dari 1 dan mengikuti jumlah banner pada section ini.
+          Urutan otomatis memakai slot kosong terkecil. Contoh: jika urutan #2
+          kosong, banner baru akan otomatis masuk ke #2.
         </p>
       </div>
 
       {scopeType === "BPR" ? (
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">BPR ID</label>
-          <Input
-            value={form.bpr_id}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, bpr_id: e.target.value }))
-            }
-            placeholder="Contoh: 609999"
-            disabled={mode === "edit"}
-          />
+          <Input value={form.bpr_id} readOnly disabled />
         </div>
       ) : null}
 
@@ -200,6 +223,9 @@ export default function BannerForm({
               setForm((prev) => ({ ...prev, urutan: Number(e.target.value) }))
             }
           />
+          <p className="text-xs text-gray-500">
+            Urutan tidak boleh 0 dan tidak boleh sama dengan banner aktif lain.
+          </p>
         </div>
       </div>
 
@@ -230,11 +256,46 @@ export default function BannerForm({
         <Input
           type="file"
           accept="image/*"
-          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setImageFile(file);
+          }}
         />
         <p className="text-xs text-gray-500">
           File saat ini: {imageFile?.name || form.image_file || "Belum ada"}
         </p>
+      </div>
+
+      <div className="rounded-2xl border bg-gray-50 p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">
+              Preview Home Mobile-Info
+            </p>
+            <p className="text-xs text-gray-500">
+              Simulasi tampilan banner pada carousel home aplikasi mobile.
+            </p>
+          </div>
+          <span className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-600">
+            220 x 140 (mobile)
+          </span>
+        </div>
+
+        <div className="flex justify-center">
+            <div className="h-[140px] w-[250px] overflow-hidden rounded-[8px] bg-white shadow-sm">
+              {imagePreviewUrl ? (
+                <img
+                  src={imagePreviewUrl}
+                  alt="Preview banner"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center px-2 text-center text-xs text-gray-400">
+                  Upload gambar untuk preview
+                </div>
+              )}
+            </div>
+          </div>
       </div>
 
       {form.banner_type === "VIDEO" ? (
