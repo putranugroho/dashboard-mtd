@@ -98,8 +98,17 @@ export default function TcodeForm({
           id="tcode"
           placeholder="Contoh: 5000"
           value={form.tcode}
+          disabled={mode === "edit"}
+          readOnly={mode === "edit"}
           onChange={(e) => handleChange("tcode", e.target.value)}
         />
+
+        {mode === "edit" && (
+          <p className="text-xs text-amber-600">
+            Kode TCode dikunci karena dipakai sebagai key relasi journal, BPR, CMS-IBPR,
+            dan rekonsiliasi.
+          </p>
+        )}
         {errors.tcode && (
           <p className="text-xs text-red-500">{errors.tcode}</p>
         )}

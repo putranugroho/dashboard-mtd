@@ -31,7 +31,7 @@ export function getNowReconLabel(date = new Date()): string {
 }
 
 function deriveSourceType(item: SaldoMTDItem): "REK" | "GL" {
-  return String(item.jns_rek) === "1" ? "GL" : "REK";
+  return String(item.jns_rek) === "2" ? "GL" : "REK";
 }
 
 function findMapping(

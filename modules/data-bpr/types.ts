@@ -23,6 +23,6 @@ export type BprTcodeItem = {
   is_linked: boolean;
   journal: boolean;
   journal_ready: boolean;
-  accounting_ready?: boolean;
+  accounting_ready: boolean;
   accounting_journal_count?: number;
 };

@@ -76,8 +76,27 @@ export default function DataBprPage() {
       prev.map((item) => {
         if (item.id !== tcodeId) return item;
 
-        const canEnable = item.journal;
-        if (!canEnable) return item;
+        if (!item.is_linked && !item.journal) {
+          window.alert(
+            `TCode ${item.tcode} belum memiliki setup journal di Dashboard MTD. Relasi belum bisa diaktifkan.`
+          );
+          return item;
+        }
+
+        if (
+          item.is_linked &&
+          (item.journal_ready || item.accounting_ready)
+        ) {
+          const ok = window.confirm(
+            `TCode ${item.tcode} sudah memiliki setup lanjutan:\n\n` +
+              `Journal CMS: ${item.journal_ready ? "Sudah" : "Belum"}\n` +
+              `Rekonsiliasi: ${item.accounting_ready ? "Sudah" : "Belum"}\n\n` +
+              `Relasi akan dinonaktifkan, tetapi data lama tetap disimpan dan bisa dipulihkan saat diaktifkan kembali.\n\n` +
+              `Lanjutkan?`
+          );
+
+          if (!ok) return item;
+        }
 
         return {
           ...item,
