@@ -62,3 +62,13 @@ export async function saveBprTcodes(
     }
   );
 }
+
+export type ListBprItem = BprProfile;
+
+export async function getListBpr() {
+  const res = await postJson<ApiResponse<BprProfile[]>>("/bpr_profile", {
+    action: "list",
+  });
+
+  return Array.isArray(res.data) ? res.data : [];
+}

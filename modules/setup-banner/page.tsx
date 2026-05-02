@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
+import BprSelect from "@/components/shared/BprSelect";
 import {
   createBanner,
   deleteBanner,
@@ -16,7 +16,8 @@ import { BannerFormValues, BannerItem } from "./types";
 export default function SetupBannerPage() {
   const [globalBanners, setGlobalBanners] = useState<BannerItem[]>([]);
   const [bprBanners, setBprBanners] = useState<BannerItem[]>([]);
-  const [bprId, setBprId] = useState("609999");
+  const [bprId, setBprId] = useState("");
+  const [bprName, setBprName] = useState("");
   const [loadingGlobal, setLoadingGlobal] = useState(true);
   const [loadingBpr, setLoadingBpr] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -60,10 +61,6 @@ export default function SetupBannerPage() {
 
   useEffect(() => {
     loadGlobalBanners();
-  }, []);
-
-  useEffect(() => {
-    loadBprBanners(bprId);
   }, []);
 
   const handleSubmit = async (
@@ -118,20 +115,32 @@ export default function SetupBannerPage() {
   };
 
   const bprControl = (
-    <div className="flex flex-col gap-2 md:flex-row md:items-center">
-      <Input
+    <div className="min-w-[360px]">
+      <BprSelect
         value={bprId}
-        onChange={(e) => setBprId(e.target.value)}
-        placeholder="Masukkan BPR ID"
-        className="md:w-[220px]"
+        disabled={loadingBpr || submitting}
+        label="BPR"
+        placeholder="Pilih BPR"
+        onChange={(value, item) => {
+          setBprId(value);
+          setBprName(item?.nama_bpr || "");
+
+          if (value) {
+            loadBprBanners(value);
+          } else {
+            setBprBanners([]);
+          }
+        }}
       />
-      <button
-        type="button"
-        onClick={() => loadBprBanners(bprId)}
-        className="h-10 rounded-md border bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50"
-      >
-        Cari BPR
-      </button>
+
+      {bprId ? (
+        <div className="mt-2 rounded-lg border bg-gray-50 px-3 py-2 text-xs text-gray-600">
+          Banner khusus untuk:{" "}
+          <span className="font-semibold">
+            {bprId} - {bprName || "-"}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 
@@ -140,7 +149,9 @@ export default function SetupBannerPage() {
       <div className="rounded-2xl border bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold text-gray-900">Setup Banner</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Kelola banner global untuk semua BPR dan banner khusus per BPR. Urutan banner dihitung terpisah: global mulai dari 1, dan setiap BPR juga mulai dari 1.
+          Kelola banner global untuk semua BPR dan banner khusus per BPR. Urutan
+          banner dihitung terpisah: global mulai dari 1, dan setiap BPR juga mulai
+          dari 1.
         </p>
       </div>
 

@@ -2,12 +2,13 @@
 
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import BprSelect from "@/components/shared/BprSelect";
+import { ListBprItem } from "@/lib/api/bpr";
 
 type Props = {
   bprId: string;
   loading?: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: string, item?: ListBprItem) => void;
   onSearch: () => void;
 };
 
@@ -19,28 +20,33 @@ export default function SaldoSearchForm({
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="space-y-5">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
             Saldo Rekening MTD
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Inquiry saldo seluruh rekening dan GL berdasarkan BPR ID.
+            Inquiry saldo seluruh rekening dan GL berdasarkan BPR.
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-          <div className="relative min-w-[260px]">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-            <Input
+        <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="w-full md:w-[360px]">
+            <BprSelect
               value={bprId}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="Masukkan BPR ID"
-              className="pl-9"
+              disabled={loading}
+              label="BPR"
+              placeholder="Pilih BPR"
+              onChange={onChange}
             />
           </div>
 
-          <Button onClick={onSearch} disabled={loading}>
+          <Button
+            onClick={onSearch}
+            disabled={loading || !bprId}
+            className="h-11 px-4 md:w-auto"
+          >
+            <Search className="mr-2 size-4" />
             {loading ? "Memuat..." : "Cari"}
           </Button>
         </div>

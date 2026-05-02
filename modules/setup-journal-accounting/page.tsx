@@ -1,11 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
+import BprSelect from "@/components/shared/BprSelect";
 import {
   deleteAccountingJournal,
   getAccountingJournalDetail,
@@ -13,6 +10,7 @@ import {
   getAccountingSubtree,
   saveAccountingJournalBulk,
 } from "@/lib/api/journal-accounting";
+import { ListBprItem } from "@/lib/api/bpr";
 
 import AccountingJournalEditor from "./AccountingJournalEditor";
 import AccountingJournalTcodeList from "./AccountingJournalTcodeList";
@@ -30,8 +28,8 @@ const DEFAULT_KD_KANTOR =
   process.env.NEXT_PUBLIC_DEFAULT_KD_KANTOR || "0000";
 
 export default function SetupJournalAccountingPage() {
-  const [searchCode, setSearchCode] = useState("");
   const [activeBprId, setActiveBprId] = useState("");
+  const [activeBprName, setActiveBprName] = useState("");
 
   const [query, setQuery] = useState("");
   const [tcodeList, setTcodeList] = useState<JournalAccountingTcodeSummary[]>([]);
@@ -124,6 +122,7 @@ export default function SetupJournalAccountingPage() {
 
   useEffect(() => {
     if (!selectedTcode || !activeBprId) return;
+
     const found = tcodeList.find((item) => item.tcode === selectedTcode);
     if (found) {
       setSelectedSummary(found);
@@ -143,25 +142,30 @@ export default function SetupJournalAccountingPage() {
     });
   }, [query, tcodeList]);
 
+  const handleSelectBpr = async (bprId: string, item?: ListBprItem) => {
+    setActiveBprId(bprId);
+    setActiveBprName(item?.nama_bpr || "");
+    setQuery("");
+    setTcodeList([]);
+    setSelectedTcode(null);
+    setSelectedSummary(null);
+    setSelectedDetail(null);
+
+    if (!bprId) {
+      return;
+    }
+
+    await loadList(bprId);
+  };
+
   const handleSelect = (item: JournalAccountingTcodeSummary) => {
     setSelectedTcode(item.tcode);
     setSelectedSummary(item);
   };
 
-  const handleSearch = async () => {
-    const bprId = searchCode.trim();
-    if (!bprId) {
-      window.alert("Masukkan BPR ID terlebih dahulu.");
-      return;
-    }
-
-    setActiveBprId(bprId);
-    await loadList(bprId);
-  };
-
   const handleSave = async (detail: JournalAccountingDetail) => {
     if (!activeBprId) {
-      window.alert("Silakan cari BPR ID terlebih dahulu.");
+      window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
 
@@ -201,7 +205,7 @@ export default function SetupJournalAccountingPage() {
 
   const handleDelete = async (tcode: string) => {
     if (!activeBprId) {
-      window.alert("Silakan cari BPR ID terlebih dahulu.");
+      window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
 
@@ -251,25 +255,15 @@ export default function SetupJournalAccountingPage() {
           Sub Buku Besar.
         </p>
 
-        <div className="mt-5 flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-          <div className="relative min-w-[260px]">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              value={searchCode}
-              onChange={(e) => setSearchCode(e.target.value)}
-              placeholder="Masukkan BPR ID"
-              className="pl-9"
-            />
-          </div>
-
-          <Button onClick={handleSearch}>Cari BPR</Button>
+        <div className="mt-5 grid gap-4 md:grid-cols-[360px_1fr] md:items-end">
+          <BprSelect
+            value={activeBprId}
+            label="BPR"
+            placeholder="Pilih BPR"
+            disabled={loadingList || loadingDetail}
+            onChange={handleSelectBpr}
+          />
         </div>
-
-        {activeBprId ? (
-          <div className="mt-3 text-sm text-gray-600">
-            BPR aktif: <span className="font-semibold">{activeBprId}</span>
-          </div>
-        ) : null}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">

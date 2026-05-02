@@ -1,9 +1,9 @@
 "use client";
 
 import { Download, RefreshCcw } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import BprSelect from "@/components/shared/BprSelect";
+import { ListBprItem } from "@/lib/api/bpr";
 
 type Props = {
   bprId: string;
@@ -11,14 +11,13 @@ type Props = {
   reconAt: string;
   loading: boolean;
   canDownload: boolean;
-  onChangeBprId: (value: string) => void;
+  onChangeBprId: (value: string, item?: ListBprItem) => void;
   onRekon: () => void;
   onDownload: () => void;
 };
 
 export default function RekonsiliasiSearchForm({
   bprId,
-  bprName,
   reconAt,
   loading,
   canDownload,
@@ -28,26 +27,22 @@ export default function RekonsiliasiSearchForm({
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className="grid gap-4 md:grid-cols-[320px_1fr_auto_auto] md:items-end">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-500">BPR ID</label>
-          <Input
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        
+        <div className="w-full md:w-[360px]">
+          <BprSelect
             value={bprId}
-            onChange={(e) => onChangeBprId(e.target.value)}
-            placeholder="Masukkan BPR ID"
             disabled={loading}
+            label="BPR"
+            placeholder="Pilih BPR"
+            onChange={onChangeBprId}
           />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-300">Nama BPR</label>
-          <Input value={bprName} readOnly placeholder="Nama BPR" />
         </div>
 
         <Button
           onClick={onRekon}
-          disabled={loading}
-          className="h-14 min-w-[110px] rounded-xl"
+          disabled={loading || !bprId}
+          className="h-11 px-4"
         >
           <RefreshCcw className="mr-2 size-4" />
           {loading ? "Memuat..." : "Rekon"}
@@ -57,7 +52,7 @@ export default function RekonsiliasiSearchForm({
           onClick={onDownload}
           disabled={!canDownload || loading}
           variant="outline"
-          className="h-14 min-w-[150px] rounded-xl"
+          className="h-11 px-4"
         >
           <Download className="mr-2 size-4" />
           Download Excel

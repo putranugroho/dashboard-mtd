@@ -1,9 +1,9 @@
 "use client";
 
 import { Search, Save } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import BprSelect from "@/components/shared/BprSelect";
+import { ListBprItem } from "@/lib/api/bpr";
 
 type Props = {
   bprId: string;
@@ -11,14 +11,13 @@ type Props = {
   loading: boolean;
   saving: boolean;
   canSave: boolean;
-  onChangeBprId: (value: string) => void;
+  onChangeBprId: (value: string, item?: ListBprItem) => void;
   onSearch: () => void;
   onSave: () => void;
 };
 
 export default function RelasiSearchForm({
   bprId,
-  bprName,
   loading,
   saving,
   canSave,
@@ -28,31 +27,36 @@ export default function RelasiSearchForm({
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className="grid gap-4 md:grid-cols-[220px_1fr_auto_auto] md:items-end">
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700">BPR ID</label>
-          <Input
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        
+        <div className="w-[360px]">
+          <BprSelect
             value={bprId}
-            onChange={(e) => onChangeBprId(e.target.value)}
-            placeholder="Masukkan BPR ID"
             disabled={loading || saving}
+            label="BPR"
+            placeholder="Pilih BPR"
+            onChange={onChangeBprId}
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700">Nama BPR</label>
-          <Input value={bprName} readOnly placeholder="Akan tampil otomatis" />
-        </div>
-
-        <Button onClick={onSearch} disabled={loading || saving}>
+        <Button
+          onClick={onSearch}
+          disabled={loading || saving || !bprId}
+          className="h-11 px-4"
+        >
           <Search className="mr-2 size-4" />
           {loading ? "Memuat..." : "Relasi"}
         </Button>
 
-        <Button onClick={onSave} disabled={!canSave || saving || loading}>
+        <Button
+          onClick={onSave}
+          disabled={!canSave || saving || loading}
+          className="h-11 px-4"
+        >
           <Save className="mr-2 size-4" />
           {saving ? "Menyimpan..." : "Simpan Relasi"}
         </Button>
+
       </div>
     </div>
   );
