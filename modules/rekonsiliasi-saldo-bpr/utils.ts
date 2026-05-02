@@ -11,6 +11,14 @@ function toNumber(value: string | number | undefined | null): number {
   return Number.isNaN(num) ? 0 : num;
 }
 
+function norm(value: string | number | undefined | null): string {
+  return String(value ?? "").trim();
+}
+
+function normUpper(value: string | number | undefined | null): string {
+  return norm(value).toUpperCase();
+}
+
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat("id-ID", {
     minimumFractionDigits: 2,
@@ -31,29 +39,126 @@ export function getNowReconLabel(date = new Date()): string {
 }
 
 function deriveSourceType(item: SaldoMTDItem): "REK" | "GL" {
-  return String(item.jns_rek) === "2" ? "GL" : "REK";
+  return norm(item.jns_rek) === "2" ? "GL" : "REK";
 }
 
-function findMapping(
-  item: SaldoMTDItem,
-  mappings: RekonMappingListItem[]
-): RekonMappingListItem | undefined {
-  const sourceType = deriveSourceType(item);
+function sourceKey(sourceType: string, sourceCode: string): string {
+  return `${normUpper(sourceType)}::${norm(sourceCode)}`;
+}
 
-  return mappings.find(
-    (mapping) =>
-      mapping.is_active === true &&
-      String(mapping.source_type).toUpperCase() === sourceType &&
-      String(mapping.source_code) === String(item.no_rek)
-  );
+function saldoGLKey(nosbb: string, nobb: string): string {
+  return `${norm(nosbb)}::${norm(nobb)}`;
+}
+
+function buildMappingMap(mappings: RekonMappingListItem[]) {
+  const map = new Map<string, RekonMappingListItem>();
+
+  for (const mapping of mappings) {
+    if (!mapping.is_active) continue;
+
+    const key = sourceKey(mapping.source_type, mapping.source_code);
+    map.set(key, mapping);
+  }
+
+  return map;
 }
 
 function buildSaldoGLMap(items: SaldoGLItem[]) {
   const map = new Map<string, SaldoGLItem>();
 
   for (const item of items) {
-    const key = `${item.nosbb}::${item.nobb}`;
+    const key = saldoGLKey(item.nosbb, item.nobb);
     map.set(key, item);
+  }
+
+  return map;
+}
+
+function buildRowFromSaldoItem({
+  item,
+  mapping,
+  saldoGL,
+  reconAt,
+}: {
+  item: SaldoMTDItem;
+  mapping?: RekonMappingListItem;
+  saldoGL?: SaldoGLItem;
+  reconAt: string;
+}): RekonsiliasiRow {
+  const saldoBpr = toNumber(item.saldoakhir);
+  const saldoAcct = saldoGL ? toNumber(saldoGL.saldo_akhir) : 0;
+  const selisih = saldoAcct - saldoBpr;
+
+  return {
+    source_type: deriveSourceType(item),
+    source_code: norm(item.no_rek),
+    source_name: norm(item.nama),
+
+    saldo_bpr: saldoBpr,
+    saldo_acct: saldoAcct,
+    selisih,
+
+    sbb_code: mapping?.sbb_code || "",
+    sbb_name: mapping?.sbb_name || "-",
+    sbb_nobb: mapping?.sbb_nobb || "",
+    accounting_name: saldoGL?.nama_account || mapping?.sbb_name || "-",
+
+    status: selisih === 0 ? "MATCH" : "NOT_MATCH",
+    recon_at: reconAt,
+  };
+}
+
+function buildRowFromMappingOnly({
+  mapping,
+  saldoGL,
+  reconAt,
+}: {
+  mapping: RekonMappingListItem;
+  saldoGL?: SaldoGLItem;
+  reconAt: string;
+}): RekonsiliasiRow {
+  const saldoBpr = 0;
+  const saldoAcct = saldoGL ? toNumber(saldoGL.saldo_akhir) : 0;
+  const selisih = saldoAcct - saldoBpr;
+
+  return {
+    source_type: normUpper(mapping.source_type) === "GL" ? "GL" : "REK",
+    source_code: norm(mapping.source_code),
+    source_name: norm(mapping.source_name),
+
+    saldo_bpr: saldoBpr,
+    saldo_acct: saldoAcct,
+    selisih,
+
+    sbb_code: mapping.sbb_code || "",
+    sbb_name: mapping.sbb_name || "-",
+    sbb_nobb: mapping.sbb_nobb || "",
+    accounting_name: saldoGL?.nama_account || mapping.sbb_name || "-",
+
+    status: selisih === 0 ? "MATCH" : "NOT_MATCH",
+    recon_at: reconAt,
+  };
+}
+
+function normalizeName(value: string | number | undefined | null): string {
+  return String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ");
+}
+
+function buildMappingNameMap(mappings: RekonMappingListItem[]) {
+  const map = new Map<string, RekonMappingListItem>();
+
+  for (const mapping of mappings) {
+    if (!mapping.is_active) continue;
+
+    const nameKey = normalizeName(mapping.source_name);
+    if (!nameKey) continue;
+
+    if (!map.has(nameKey)) {
+      map.set(nameKey, mapping);
+    }
   }
 
   return map;
@@ -65,36 +170,32 @@ export function buildRekonsiliasiRows({
   saldoGLItems,
   reconAt,
 }: RekonsiliasiBuildInput): RekonsiliasiRow[] {
+  const mappingMap = buildMappingMap(mappings);
+  const mappingNameMap = buildMappingNameMap(mappings);
   const saldoGLMap = buildSaldoGLMap(saldoGLItems);
 
   return saldoItems.map((item) => {
-    const mapping = findMapping(item, mappings);
+    const exactKey = sourceKey(deriveSourceType(item), norm(item.no_rek));
 
-    const saldoBpr = toNumber(item.saldoakhir);
-    const saldoGL = mapping
-      ? saldoGLMap.get(`${mapping.sbb_code}::${mapping.sbb_nobb}`)
-      : undefined;
+    let mapping = mappingMap.get(exactKey);
 
-    const saldoAcct = saldoGL ? toNumber(saldoGL.saldo_akhir) : 0;
-    const selisih = saldoAcct - saldoBpr;
+    // fallback: cocokkan berdasarkan nama rekening / GL
+    if (!mapping) {
+      const nameKey = normalizeName(item.nama);
+      mapping = mappingNameMap.get(nameKey);
+    }
 
-    return {
-      source_type: deriveSourceType(item),
-      source_code: String(item.no_rek ?? ""),
-      source_name: String(item.nama ?? ""),
+    const saldoGL =
+      mapping && mapping.sbb_code && mapping.sbb_nobb
+        ? saldoGLMap.get(saldoGLKey(mapping.sbb_code, mapping.sbb_nobb))
+        : undefined;
 
-      saldo_bpr: saldoBpr,
-      saldo_acct: saldoAcct,
-      selisih,
-
-      sbb_code: mapping?.sbb_code || "",
-      sbb_name: mapping?.sbb_name || "-",
-      sbb_nobb: mapping?.sbb_nobb || "",
-      accounting_name: saldoGL?.nama_account || mapping?.sbb_name || "-",
-
-      status: selisih === 0 ? "MATCH" : "NOT_MATCH",
-      recon_at: reconAt,
-    };
+    return buildRowFromSaldoItem({
+      item,
+      mapping,
+      saldoGL,
+      reconAt,
+    });
   });
 }
 
