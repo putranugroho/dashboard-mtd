@@ -34,20 +34,18 @@ export function resolveBannerAssetUrl(urlOrPath: string) {
 }
 
 export async function getBanners(params?: {
-  scopeType?: BannerScopeType;
+  scopeType?: "GLOBAL" | "BPR";
   bprId?: string;
-  bannerType?: BannerType | "";
-  isActive?: boolean;
-}): Promise<BannerItem[]> {
+  bannerType?: "IMAGE" | "VIDEO" | "TEXT" | "SPLASH";
+}) {
   const res = await postJson<ApiResponse<BannerItem[]>>("/banner", {
     action: "list",
     scope_type: params?.scopeType || "",
     bpr_id: params?.bprId || "",
     banner_type: params?.bannerType || "",
-    is_active: params?.isActive,
   });
 
-  return res.data ?? [];
+  return Array.isArray(res.data) ? res.data : [];
 }
 
 export async function uploadBannerAsset(type: "image" | "video", file: File) {
@@ -121,6 +119,21 @@ export async function deleteBanner(
 ): Promise<ApiResponse<{ id: number }>> {
   return postJson<ApiResponse<{ id: number }>>("/banner", {
     action: "delete",
+    id,
+    userlogin,
+  });
+}
+
+export async function getSplashBanners() {
+  return getBanners({
+    scopeType: "GLOBAL",
+    bannerType: "SPLASH",
+  });
+}
+
+export async function activateSplashBanner(id: number, userlogin = "admin") {
+  return postJson("/banner", {
+    action: "activate_splash",
     id,
     userlogin,
   });

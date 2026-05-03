@@ -18,23 +18,28 @@ type Props = {
   submitting?: boolean;
   onSubmit: (values: BannerFormValues) => Promise<void> | void;
   onCancel: () => void;
+  forcedBannerType?: BannerType;
+  forcedIsActive?: boolean;
+  hideOrderInput?: boolean;
 };
 
 const emptyForm = (
   scopeType: BannerScopeType,
   bprId: string,
-  nextOrder: number
+  nextOrder: number,
+  forcedBannerType?: BannerType,
+  forcedIsActive?: boolean
 ): BannerFormValues => ({
   scope_type: scopeType,
   bpr_id: scopeType === "BPR" ? bprId : "",
-  banner_type: "IMAGE",
+  banner_type: forcedBannerType || "IMAGE",
   title: "",
   description: "",
   image_file: "",
   video_file: "",
   text_content: "",
   urutan: nextOrder,
-  is_active: true,
+  is_active: forcedIsActive ?? true,
 });
 
 export default function BannerForm({
@@ -47,9 +52,12 @@ export default function BannerForm({
   submitting,
   onSubmit,
   onCancel,
+  forcedBannerType,
+  forcedIsActive,
+  hideOrderInput
 }: Props) {
   const [form, setForm] = useState<BannerFormValues>(
-    emptyForm(scopeType, bprId, nextOrder)
+    emptyForm(scopeType, bprId, nextOrder, forcedBannerType, forcedIsActive)
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -71,12 +79,14 @@ export default function BannerForm({
         is_active: Boolean(initialData.is_active),
       });
     } else {
-      setForm(emptyForm(scopeType, bprId, nextOrder));
+      setForm(
+        emptyForm(scopeType, bprId, nextOrder, forcedBannerType, forcedIsActive)
+      );
     }
 
     setImageFile(null);
     setVideoFile(null);
-  }, [initialData, scopeType, bprId, nextOrder]);
+  }, [initialData, scopeType, bprId, nextOrder, forcedBannerType, forcedIsActive]);
 
   useEffect(() => {
     if (!imageFile) {
@@ -93,9 +103,10 @@ export default function BannerForm({
   }, [imageFile]);
 
   const title = useMemo(() => {
+    if (forcedBannerType === "SPLASH") return "Splash Banner";
     if (scopeType === "GLOBAL") return "Banner Global";
     return `Banner Khusus BPR ${bprId || "-"}`;
-  }, [scopeType, bprId]);
+  }, [scopeType, bprId, forcedBannerType]);
 
   const handleSubmit = async () => {
     if (scopeType === "BPR" && !form.bpr_id.trim()) {
@@ -110,7 +121,7 @@ export default function BannerForm({
 
     const nextUrutan = Number(form.urutan || 0);
 
-    if (!nextUrutan || nextUrutan < 1) {
+    if (!hideOrderInput && (!form.urutan || form.urutan < 1)) {
       window.alert("Urutan banner minimal 1.");
       return;
     }
@@ -120,8 +131,8 @@ export default function BannerForm({
       existingOrders.includes(nextUrutan) &&
       !(mode === "edit" && nextUrutan === currentInitialOrder);
 
-    if (isDuplicateOrder) {
-      window.alert(`Urutan #${nextUrutan} sudah digunakan. Silakan pilih urutan lain.`);
+    if (!hideOrderInput && isDuplicateOrder) {
+      window.alert(`Urutan #${nextUrutan} sudah digunakan.`);
       return;
     }
 
@@ -160,12 +171,14 @@ export default function BannerForm({
         ...form,
         scope_type: scopeType,
         bpr_id: scopeType === "BPR" ? form.bpr_id.trim() : "",
+        banner_type: forcedBannerType || form.banner_type,
+        is_active: forcedIsActive ?? form.is_active,
         title: form.title.trim(),
         description: form.description.trim(),
         image_file: nextImageFile,
         video_file: form.banner_type === "VIDEO" ? nextVideoFile : "",
         text_content: form.banner_type === "TEXT" ? form.text_content.trim() : "",
-        urutan: nextUrutan,
+        urutan: hideOrderInput ? 1 : Number(form.urutan || 1),
       });
     } catch (error) {
       console.error(error);
@@ -179,11 +192,12 @@ export default function BannerForm({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border bg-gray-50 p-4">
-        <p className="text-sm font-semibold text-gray-900">{title}</p>
-        <p className="mt-1 text-xs text-gray-500">
-          Urutan otomatis memakai slot kosong terkecil. Contoh: jika urutan #2
-          kosong, banner baru akan otomatis masuk ke #2.
+      <div className="rounded-2xl border bg-gray-50 p-4">
+        <p className="text-base font-semibold text-gray-900">{title}</p>
+        <p className="mt-1 text-sm text-gray-500">
+          {forcedBannerType === "SPLASH"
+            ? "Splash digunakan sebagai popup global saat user pertama kali membuka aplikasi. Default status saat dibuat adalah nonaktif."
+            : "Urutan otomatis memakai slot kosong terkecil. Contoh: jika urutan #2 kosong, banner baru akan otomatis masuk ke #2."}
         </p>
       </div>
 
@@ -194,25 +208,32 @@ export default function BannerForm({
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Jenis Banner</label>
-          <select
-            value={form.banner_type}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                banner_type: e.target.value as BannerType,
-              }))
-            }
-            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="IMAGE">Image</option>
-            <option value="VIDEO">Video</option>
-            <option value="TEXT">Text</option>
-          </select>
-        </div>
+      {forcedBannerType ? (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Jenis Banner</label>
+            <Input value={forcedBannerType} disabled />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Jenis Banner</label>
+            <select
+              value={form.banner_type}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  banner_type: e.target.value as BannerType,
+                }))
+              }
+              className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="IMAGE">Image</option>
+              <option value="VIDEO">Video</option>
+              <option value="TEXT">Text</option>
+            </select>
+          </div>
+        )}
 
+        {!hideOrderInput ? (
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Urutan</label>
           <Input
@@ -220,14 +241,14 @@ export default function BannerForm({
             min={1}
             value={form.urutan}
             onChange={(e) =>
-              setForm((prev) => ({ ...prev, urutan: Number(e.target.value) }))
+              setForm((prev) => ({
+                ...prev,
+                urutan: Number(e.target.value || 1),
+              }))
             }
           />
-          <p className="text-xs text-gray-500">
-            Urutan tidak boleh 0 dan tidak boleh sama dengan banner aktif lain.
-          </p>
         </div>
-      </div>
+      ) : null}
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Title</label>
@@ -326,28 +347,35 @@ export default function BannerForm({
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between rounded-xl border bg-gray-50 p-4">
-        <div>
-          <p className="text-sm font-medium text-gray-900">Status Banner</p>
-          <p className="text-xs text-gray-500">
-            Banner nonaktif tidak muncul pada aplikasi user.
-          </p>
-        </div>
+      {!(forcedBannerType === "SPLASH" && mode === "create") ? (
+        <div className="flex items-center justify-between rounded-xl border bg-gray-50 p-4">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Status Banner</p>
+            <p className="text-xs text-gray-500">
+              Banner nonaktif tidak muncul pada aplikasi user.
+            </p>
+          </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            setForm((prev) => ({ ...prev, is_active: !prev.is_active }))
-          }
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-            form.is_active
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-200 text-gray-600"
-          }`}
-        >
-          {form.is_active ? "Aktif" : "Nonaktif"}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() =>
+              setForm((prev) => ({ ...prev, is_active: !prev.is_active }))
+            }
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              form.is_active
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            {form.is_active ? "Aktif" : "Nonaktif"}
+          </button>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+          Splash baru akan disimpan sebagai <b>Nonaktif</b>. Aktifkan dari tombol
+          <b> Aktifkan</b> pada tabel splash.
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 border-t pt-5">
         <Button type="button" variant="outline" onClick={onCancel}>

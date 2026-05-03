@@ -13,6 +13,7 @@ import {
   getBprDetailWithTcodes,
   saveBprProfile,
   saveBprTcodes,
+  uploadBprLogo,
 } from "@/lib/api/bpr";
 
 const emptyProfile = (bprId: string): BprProfile => ({
@@ -38,6 +39,7 @@ export default function DataBprPage() {
   const [selectedCode, setSelectedCode] = useState("609999");
   const [profile, setProfile] = useState<BprProfile>(emptyProfile("609999"));
   const [tcodes, setTcodes] = useState<BprTcodeItem[]>([]);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
@@ -50,6 +52,7 @@ export default function DataBprPage() {
 
       setSelectedCode(code);
       setProfile(result.profile ?? emptyProfile(code));
+      setLogoFile(null);
       setTcodes(result.tcodes ?? []);
     } catch (error) {
       console.error(error);
@@ -108,7 +111,22 @@ export default function DataBprPage() {
 
   const handleSaveProfile = async () => {
     try {
-      await saveBprProfile(profile);
+      let nextProfile = profile;
+
+      if (logoFile) {
+        const uploaded = await uploadBprLogo(logoFile);
+
+        nextProfile = {
+          ...profile,
+          logo_bpr: uploaded.file_name,
+        };
+
+        setProfile(nextProfile);
+      }
+
+      await saveBprProfile(nextProfile);
+      setLogoFile(null);
+
       window.alert("Profile BPR berhasil disimpan.");
     } catch (error) {
       console.error(error);
@@ -177,7 +195,12 @@ export default function DataBprPage() {
         </div>
       ) : (
         <>
-          <BprForm value={profile} onChange={handleProfileChange} />
+          <BprForm
+            value={profile}
+            onChange={handleProfileChange}
+            logoFile={logoFile}
+            onLogoFileChange={setLogoFile}
+          />
 
           <div className="flex justify-end">
             <Button onClick={handleSaveProfile}>

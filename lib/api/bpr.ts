@@ -1,4 +1,4 @@
-import { postJson } from "./client";
+import { buildApiUrl, postFormData, postJson } from "./client";
 import { BprProfile, BprTcodeItem } from "@/modules/data-bpr/types";
 
 type ApiResponse<T> = {
@@ -71,4 +71,37 @@ export async function getListBpr() {
   });
 
   return Array.isArray(res.data) ? res.data : [];
+}
+
+export type UploadBprLogoResponse = {
+  file_name: string;
+  path: string;
+  type: string;
+};
+
+export async function uploadBprLogo(file: File): Promise<UploadBprLogoResponse> {
+  const formData = new FormData();
+  formData.append("type", "logo_bpr");
+  formData.append("file", file);
+
+  const json = await postFormData<any>("/photo/upload-single", formData);
+
+  const payload = json?.data?.data ?? json?.data ?? json;
+
+  if (payload?.code === "001" || json?.code === "001") {
+    throw new Error(json?.message || payload?.message || "Gagal upload logo BPR");
+  }
+
+  return payload;
+}
+
+export function resolveBprLogoUrl(fileName?: string) {
+  const name = String(fileName || "").trim();
+  if (!name) return "";
+
+  if (name.startsWith("http://") || name.startsWith("https://")) {
+    return name;
+  }
+
+  return buildApiUrl(`/photo/view?type=logo_bpr&file=${encodeURIComponent(name)}`);
 }

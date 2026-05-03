@@ -1,5 +1,6 @@
 export type BannerScopeType = "GLOBAL" | "BPR";
-export type BannerType = "IMAGE" | "VIDEO" | "TEXT";
+
+export type BannerType = "IMAGE" | "VIDEO" | "TEXT" | "SPLASH";
 
 export type BannerItem = {
   id: number;

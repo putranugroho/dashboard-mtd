@@ -11,6 +11,8 @@ import {
 } from "@/lib/api/banner";
 import BannerPreviewDialog from "./BannerPreviewDialog";
 import BannerSection from "./BannerSection";
+import SplashBannerSection from "./SplashBannerSection";
+import { getSplashBanners } from "@/lib/api/banner";
 import { BannerFormValues, BannerItem } from "./types";
 
 export default function SetupBannerPage() {
@@ -22,12 +24,14 @@ export default function SetupBannerPage() {
   const [loadingBpr, setLoadingBpr] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [previewItem, setPreviewItem] = useState<BannerItem | null>(null);
+  const [splash, setSplash] = useState<BannerItem[]>([]);
+  const [loadingSplash, setLoadingSplash] = useState(false);
 
   const loadGlobalBanners = async () => {
     try {
       setLoadingGlobal(true);
       const result = await getBanners({ scopeType: "GLOBAL" });
-      setGlobalBanners(result);
+      setGlobalBanners(result.filter((item) => item.banner_type !== "SPLASH"));
     } catch (error) {
       console.error(error);
       window.alert(
@@ -35,6 +39,16 @@ export default function SetupBannerPage() {
       );
     } finally {
       setLoadingGlobal(false);
+    }
+  };
+
+  const loadSplash = async () => {
+    try {
+      setLoadingSplash(true);
+      const res = await getSplashBanners();
+      setSplash(res);
+    } finally {
+      setLoadingSplash(false);
     }
   };
 
@@ -61,6 +75,7 @@ export default function SetupBannerPage() {
 
   useEffect(() => {
     loadGlobalBanners();
+    loadSplash();
   }, []);
 
   const handleSubmit = async (
@@ -76,7 +91,9 @@ export default function SetupBannerPage() {
         await createBanner(values);
       }
 
-      if (values.scope_type === "GLOBAL") {
+      if (values.banner_type === "SPLASH") {
+        await loadSplash();
+      } else if (values.scope_type === "GLOBAL") {
         await loadGlobalBanners();
       } else {
         await loadBprBanners(values.bpr_id);
@@ -99,7 +116,9 @@ export default function SetupBannerPage() {
     try {
       await deleteBanner(item.id);
 
-      if (item.scope_type === "GLOBAL") {
+      if (item.banner_type === "SPLASH") {
+        await loadSplash();
+      } else if (item.scope_type === "GLOBAL") {
         await loadGlobalBanners();
       } else {
         await loadBprBanners(item.bpr_id);
@@ -154,6 +173,15 @@ export default function SetupBannerPage() {
           dari 1.
         </p>
       </div>
+
+      <SplashBannerSection
+        data={splash}
+        loading={loadingSplash}
+        submitting={submitting}
+        onSubmit={handleSubmit}
+        onDelete={handleDelete}
+        onRefresh={loadSplash}
+      />
 
       <BannerSection
         title="Upload Global Banner"

@@ -1,17 +1,51 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { resolveBprLogoUrl } from "@/lib/api/bpr";
 import { BprProfile } from "./types";
 
 type Props = {
   value: BprProfile;
   onChange: (patch: Partial<BprProfile>) => void;
+  logoFile?: File | null;
+  onLogoFileChange?: (file: File | null) => void;
 };
 
-export default function BprForm({ value, onChange }: Props) {
+export default function BprForm({
+  value,
+  onChange,
+  logoFile,
+  onLogoFileChange,
+}: Props) {
+  const [localLogoPreview, setLocalLogoPreview] = useState("");
+  const [logoLoadError, setLogoLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!logoFile) {
+      setLocalLogoPreview("");
+      return;
+    }
+
+    const url = URL.createObjectURL(logoFile);
+    setLocalLogoPreview(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [logoFile]);
+
+  const existingLogoUrl = resolveBprLogoUrl(value.logo_bpr);
+  const previewUrl = localLogoPreview || existingLogoUrl;
+
+  useEffect(() => {
+    setLogoLoadError(false);
+  }, [previewUrl]);
+
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -169,30 +203,64 @@ export default function BprForm({ value, onChange }: Props) {
       <div className="mt-5 rounded-xl border bg-gray-50 p-4">
         <h3 className="mb-4 text-sm font-semibold">Logo BPR</h3>
 
-        <div className="grid gap-3">
-          <div className="grid gap-2">
-            <Label>Upload Logo</Label>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                onChange({ logo_bpr: file ? file.name : "" });
-              }}
-            />
-            <p className="text-xs text-gray-500">
-              Untuk saat ini baru disiapkan tempat upload dulu. Belum tersambung ke backend upload file.
+        <div className="grid gap-5 md:grid-cols-[220px_1fr] md:items-start">
+          <div className="rounded-xl border border-dashed bg-white p-4">
+            <div className="mb-3 text-xs font-semibold text-gray-500">
+              Preview Logo
+            </div>
+
+            <div className="flex h-[140px] w-full items-center justify-center overflow-hidden rounded-lg border bg-gray-50">
+              {previewUrl && !logoLoadError ? (
+                <img
+                  key={previewUrl}
+                  src={previewUrl}
+                  alt="Logo BPR"
+                  className="max-h-full max-w-full object-contain"
+                  onLoad={() => setLogoLoadError(false)}
+                  onError={() => setLogoLoadError(true)}
+                />
+              ) : (
+                <span className="text-center text-xs text-gray-400">
+                  {logoLoadError ? "Preview logo gagal dimuat" : "Belum ada logo"}
+                </span>
+              )}
+            </div>
+
+            <p className="mt-3 break-all text-xs text-gray-500">
+              File: {logoFile?.name || value.logo_bpr || "-"}
             </p>
           </div>
 
-          <div className="rounded-lg border border-dashed bg-white p-4 text-sm text-gray-600">
-            {value.logo_bpr ? (
-              <>
-                <span className="font-medium">File terpilih:</span> {value.logo_bpr}
-              </>
-            ) : (
-              "Belum ada logo yang dipilih"
-            )}
+          <div className="grid gap-3">
+            <div className="grid gap-2">
+              <Label>Upload Logo</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  onLogoFileChange?.(file);
+                }}
+              />
+              <p className="text-xs text-gray-500">
+                File akan diupload ke middleware saat tombol Simpan Profile BPR ditekan.
+              </p>
+            </div>
+
+            <div className="rounded-lg border bg-white p-4 text-sm text-gray-600">
+              {logoFile ? (
+                <>
+                  <span className="font-medium">File baru:</span> {logoFile.name}
+                </>
+              ) : value.logo_bpr ? (
+                <>
+                  <span className="font-medium">Logo tersimpan:</span>{" "}
+                  {value.logo_bpr}
+                </>
+              ) : (
+                "Belum ada logo yang dipilih"
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -14,8 +14,8 @@ type Props = {
 export default function BannerPreviewDialog({ item, onClose }: Props) {
   if (!item) return null;
 
-  const imageUrl = resolveBannerAssetUrl(item.image_url);
-  const videoUrl = resolveBannerAssetUrl(item.video_url);
+  const imageUrl = resolveBannerAssetUrl(item.image_url || item.image_file);
+  const videoUrl = resolveBannerAssetUrl(item.video_url || item.video_file);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
