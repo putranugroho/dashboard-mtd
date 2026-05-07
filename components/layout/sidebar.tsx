@@ -68,6 +68,7 @@ const menu = [
                     { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi" },
                     { title: "Setup User", href: "/setup/setup-user" },
                     { title: "Setup Banner", href: "/setup/setup-banner" },
+                    { title: "Setup Master Menu", href: "/setup/setup-master-menu" },
                     { title: "Setup Fee", href: "/setup/setup-fee" },
                 ],
             },

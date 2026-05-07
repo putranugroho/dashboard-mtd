@@ -47,7 +47,9 @@ export async function getRekonMappingList(
     bpr_id: bprId,
   });
 
-  return normalizeMappingListPayload(res.data);
+  return normalizeMappingListPayload(res.data).filter(
+    (item) => item.is_active === true
+  );
 }
 
 export async function saveRekonMapping(

@@ -74,15 +74,16 @@ export function buildRelasiRows(
   mappings: RekonMappingListItem[],
   options: SBBOption[]
 ): RelasiRow[] {
-  const safeMappings = Array.isArray(mappings) ? mappings : [];
+  const activeMappings = Array.isArray(mappings)
+    ? mappings.filter((item) => item.is_active === true)
+    : [];
 
   return sources.map((source) => {
-    const mapping = safeMappings.find(
+    const mapping = activeMappings.find(
       (item) =>
-        String(item.source_type).toUpperCase() ===
-          String(source.source_type).toUpperCase() &&
-        String(item.source_code) === String(source.source_code) &&
-        item.is_active === true
+        String(item.source_type).trim().toUpperCase() ===
+          String(source.source_type).trim().toUpperCase() &&
+        String(item.source_code).trim() === String(source.source_code).trim()
     );
 
     const selectedOption = mapping
@@ -105,7 +106,8 @@ export function buildRelasiRows(
 
       selected_label: selectedOption?.label || "",
 
-      is_active: mapping?.is_active ?? true,
+      // source tetap tampil, tapi kalau mapping tidak aktif dianggap belum relasi
+      is_active: mapping ? true : false,
       is_changed: false,
     };
   });
