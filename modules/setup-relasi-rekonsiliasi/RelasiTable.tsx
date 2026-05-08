@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ type Props = {
   options: SBBOption[];
   loading: boolean;
   onSelectSBB: (index: number, option: SBBOption | null) => void;
+  onDeleteRelasi: (row: RelasiRow) => void;
 };
 
 function SBBSelect({
@@ -86,9 +87,10 @@ function SBBSelect({
                     {option.sbb_code}
                   </span>
                 </div>
-                {selected?.sbb_code === option.sbb_code && (
+
+                {selected?.sbb_code === option.sbb_code ? (
                   <Check className="ml-2 size-4" />
-                )}
+                ) : null}
               </CommandItem>
             ))}
           </CommandList>
@@ -103,6 +105,7 @@ export default function RelasiTable({
   options,
   loading,
   onSelectSBB,
+  onDeleteRelasi,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -122,7 +125,7 @@ export default function RelasiTable({
             <TableHead className="text-center">Kode</TableHead>
             <TableHead className="text-center">Nama Rekening / GL</TableHead>
             <TableHead className="text-center">Relasi BB -&gt; SBB</TableHead>
-            <TableHead className="text-center">Kode SBB</TableHead>
+            <TableHead className="text-center">Hapus Relasi</TableHead>
             <TableHead className="text-center">Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -166,7 +169,9 @@ export default function RelasiTable({
                       type="button"
                       variant="outline"
                       size="sm"
+                      disabled={loading}
                       onClick={() => onSelectSBB(index, null)}
+                      title="Kosongkan pilihan sementara"
                     >
                       <X className="size-4" />
                     </Button>
@@ -175,7 +180,17 @@ export default function RelasiTable({
               </TableCell>
 
               <TableCell className="text-center">
-                {row.selected_sbb_code || "-"}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={loading || !row.selected_sbb_code}
+                  onClick={() => onDeleteRelasi(row)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="mr-1 size-4" />
+                  Hapus
+                </Button>
               </TableCell>
 
               <TableCell className="text-center">

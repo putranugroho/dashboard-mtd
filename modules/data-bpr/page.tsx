@@ -88,7 +88,7 @@ export default function DataBprPage() {
 
         if (
           item.is_linked &&
-          (item.journal_ready || item.accounting_ready)
+          (item.journal_ready && item.accounting_ready)
         ) {
           const ok = window.confirm(
             `TCode ${item.tcode} sudah memiliki setup lanjutan:\n\n` +

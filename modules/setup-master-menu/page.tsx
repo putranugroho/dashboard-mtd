@@ -25,16 +25,17 @@ import { MasterMenuFormValues, MasterMenuItem } from "./types";
 
 export default function SetupMasterMenuPage() {
   const [data, setData] = useState<MasterMenuItem[]>([]);
+  const [type, setType] = useState("CMS");
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MasterMenuItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadData = async () => {
+  const loadData = async (targetType = type) => {
     try {
       setLoading(true);
-      const result = await getMasterMenus();
+      const result = await getMasterMenus(targetType);
       setData(result);
     } catch (error) {
       console.error(error);
@@ -47,7 +48,7 @@ export default function SetupMasterMenuPage() {
   };
 
   useEffect(() => {
-    loadData();
+    loadData(type);
   }, []);
 
   const filteredData = useMemo(() => {
@@ -66,8 +67,11 @@ export default function SetupMasterMenuPage() {
 
   const totalActive = data.filter((item) => item.is_active).length;
   const totalInactive = data.filter((item) => !item.is_active).length;
-  const nextOrder =
-    data.length === 0 ? 1 : Math.max(...data.map((item) => Number(item.urut || 0))) + 1;
+
+  const moduleCount = new Set(data.map((item) => item.modul)).size;
+  const menuCount = new Set(
+    data.map((item) => `${item.modul}::${item.menu}`)
+  ).size;
 
   const handleCreate = () => {
     setSelectedItem(null);
@@ -81,18 +85,23 @@ export default function SetupMasterMenuPage() {
 
   const handleDelete = async (item: MasterMenuItem) => {
     const ok = window.confirm(
-      `Yakin ingin menonaktifkan menu "${item.menu} - ${item.submenu}"?`
+      `Yakin ingin menonaktifkan menu "${item.modul} > ${item.menu} > ${item.submenu}${
+        item.subsubmenu ? ` > ${item.subsubmenu}` : ""
+      }"?`
     );
+
     if (!ok) return;
 
     try {
       await deleteMasterMenu(item.id);
-      await loadData();
+      await loadData(type);
       window.alert("Master menu berhasil dinonaktifkan.");
     } catch (error) {
       console.error(error);
       window.alert(
-        error instanceof Error ? error.message : "Gagal menonaktifkan master menu"
+        error instanceof Error
+          ? error.message
+          : "Gagal menonaktifkan master menu"
       );
     }
   };
@@ -101,20 +110,15 @@ export default function SetupMasterMenuPage() {
     try {
       setSubmitting(true);
 
-      const payload = {
-        ...values,
-        urut: values.urut || nextOrder,
-      };
-
       if (selectedItem) {
-        await updateMasterMenu(selectedItem.id, payload);
+        await updateMasterMenu(selectedItem.id, values);
       } else {
-        await createMasterMenu(payload);
+        await createMasterMenu(values);
       }
 
       setSheetOpen(false);
       setSelectedItem(null);
-      await loadData();
+      await loadData(type);
 
       window.alert(
         selectedItem
@@ -140,23 +144,40 @@ export default function SetupMasterMenuPage() {
               Setup Master Menu
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Kelola master menu CMS dari database middleware. Data ini akan
-              dikonsumsi oleh CMS-IBPR melalui endpoint master_menu.
+              Kelola master menu CMS dari database middleware dengan struktur
+              bertingkat: Module → Menu → Submenu → Subsubmenu.
             </p>
           </div>
 
           <div className="flex w-full flex-col gap-2 md:flex-row xl:w-auto">
+            <select
+              value={type}
+              onChange={(e) => {
+                const nextType = e.target.value;
+                setType(nextType);
+                loadData(nextType);
+              }}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="CMS">CMS</option>
+              <option value="CIS">CIS</option>
+            </select>
+
             <div className="relative min-w-[320px]">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari modul / menu / submenu..."
+                placeholder="Cari module / menu / submenu..."
                 className="pl-9"
               />
             </div>
 
-            <Button variant="outline" onClick={loadData} disabled={loading}>
+            <Button
+              variant="outline"
+              onClick={() => loadData(type)}
+              disabled={loading}
+            >
               <RefreshCcw className="mr-2 size-4" />
               Refresh
             </Button>
@@ -171,23 +192,25 @@ export default function SetupMasterMenuPage() {
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Total Menu</p>
+          <p className="text-sm text-gray-500">Total Row</p>
           <p className="mt-2 text-3xl font-bold">{data.length}</p>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Aktif</p>
-          <p className="mt-2 text-3xl font-bold">{totalActive}</p>
+          <p className="text-sm text-gray-500">Module</p>
+          <p className="mt-2 text-3xl font-bold">{moduleCount}</p>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Nonaktif</p>
-          <p className="mt-2 text-3xl font-bold">{totalInactive}</p>
+          <p className="text-sm text-gray-500">Menu</p>
+          <p className="mt-2 text-3xl font-bold">{menuCount}</p>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Urutan Berikutnya</p>
-          <p className="mt-2 text-3xl font-bold">#{nextOrder}</p>
+          <p className="text-sm text-gray-500">Aktif / Nonaktif</p>
+          <p className="mt-2 text-2xl font-bold">
+            {totalActive} / {totalInactive}
+          </p>
         </div>
       </div>
 
@@ -206,7 +229,7 @@ export default function SetupMasterMenuPage() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto rounded-l-2xl bg-white sm:max-w-[640px]"
+          className="w-full overflow-y-auto rounded-l-2xl bg-white sm:max-w-[720px]"
         >
           <SheetHeader className="pb-5">
             <SheetTitle>
@@ -217,6 +240,7 @@ export default function SetupMasterMenuPage() {
           <div className="pb-6">
             <MasterMenuForm
               initialData={selectedItem}
+              allData={data}
               submitting={submitting}
               onSubmit={handleSubmit}
               onCancel={() => {

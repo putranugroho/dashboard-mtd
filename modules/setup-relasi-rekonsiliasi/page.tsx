@@ -4,8 +4,12 @@
 
   import { getBprDetailWithTcodes } from "@/lib/api/bpr";
   import { getMasterGLSubtree } from "@/lib/api/mastergl";
-  import { getRekonMappingList, saveRekonMapping } from "@/lib/api/rekon-mapping";
-  import { getSaldoMTDSources, SaldoMTDSourceItem } from "@/lib/api/saldo-mtd";
+  import {
+    getRekonMappingList,
+    saveRekonMapping,
+    deactivateRekonMapping,
+  } from "@/lib/api/rekon-mapping";
+  import { getSaldoMTDSources } from "@/lib/api/saldo-mtd";
 
   import {
     applySBBToRow,
@@ -36,6 +40,57 @@
       () => rows.some((row) => row.selected_sbb_code),
       [rows]
     );
+
+    const refreshRows = async (targetBprId = activeBprId) => {
+    const [saldoSources, existingMappings] = await Promise.all([
+      getSaldoMTDSources(targetBprId),
+      getRekonMappingList(targetBprId),
+    ]);
+
+    const refreshedRows = buildRelasiRows(
+      saldoSources,
+      existingMappings,
+      options
+    );
+
+    setRows(refreshedRows);
+  };
+
+  const handleDeleteRelasi = async (row: RelasiRow) => {
+    if (!row.id) {
+      handleSelectSBB(
+        rows.findIndex(
+          (item) =>
+            item.source_type === row.source_type &&
+            item.source_code === row.source_code
+        ),
+        null
+      );
+      return;
+    }
+
+    const ok = window.confirm(
+      `Yakin ingin menghapus relasi ${row.source_type} ${row.source_code}?\n\nRelasi akan dinonaktifkan, bukan dihapus permanen.`
+    );
+
+    if (!ok) return;
+
+    try {
+      setSaving(true);
+
+      await deactivateRekonMapping(row.id, DEFAULT_USERLOGIN);
+      await refreshRows();
+
+      window.alert("Relasi berhasil dihapus.");
+    } catch (error) {
+      console.error(error);
+      window.alert(
+        error instanceof Error ? error.message : "Gagal menghapus relasi"
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
     const handleSearch = async () => {
       const nextBprId = bprId.trim();
@@ -171,8 +226,9 @@
         <RelasiTable
           rows={rows}
           options={options}
-          loading={loading}
+          loading={loading || saving}
           onSelectSBB={handleSelectSBB}
+          onDeleteRelasi={handleDeleteRelasi}
         />
       </div>
     );
