@@ -33,6 +33,7 @@ export default function SetupMTN() {
         await saveSetupFee({
             bpr_id: "609999",
             transfer_out: [],
+            transfer_in: [],
             ppob: [],
             mtn: [form],
         });

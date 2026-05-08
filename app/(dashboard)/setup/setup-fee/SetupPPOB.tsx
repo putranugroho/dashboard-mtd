@@ -64,6 +64,7 @@ export default function SetupPPOB() {
             await saveSetupFee({
                 bpr_id: form.bpr_id,
                 transfer_out: [],
+                transfer_in: [],
                 ppob: [form],
                 mtn: [],
             });

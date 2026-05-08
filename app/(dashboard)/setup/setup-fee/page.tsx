@@ -7,6 +7,8 @@ import SetupPPOB from "./SetupPPOB";
 import SetupTransferOut from "./SetupTransferOut";
 import SetupFeatureMotion from "./SetupFeatureMotion";
 
+import SetupTransferIn from "./SetupTransferIn";
+
 export default function SetupFeePage() {
     const [tab, setTab] = useState("mtn");
 
@@ -16,7 +18,7 @@ export default function SetupFeePage() {
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
                 <h1 className="text-2xl font-semibold">Setup Fee</h1>
                 <p className="text-sm text-gray-500">
-                    Kelola biaya transaksi MTN, PPOB, dan Transfer Out.
+                    Kelola biaya transaksi MTN, PPOB, Transfer Out, dan Transfer In.
                 </p>
             </div>
 
@@ -33,6 +35,9 @@ export default function SetupFeePage() {
                         <button onClick={() => setTab("transfer_out")} className="menu">
                             Setup Transfer Out
                         </button>
+                        <button onClick={() => setTab("transfer_in")} className="menu">
+    Setup Transfer In
+</button>
                         <button onClick={() => setTab("feature_motion")} className="menu">
                             Setup Feature Motion
                         </button>
@@ -44,6 +49,7 @@ export default function SetupFeePage() {
                     {tab === "mtn" && <SetupMTN />}
                     {tab === "ppob" && <SetupPPOB />}
                     {tab === "transfer_out" && <SetupTransferOut />}
+                    {tab === "transfer_in" && <SetupTransferIn />}
                     {tab === "feature_motion" && <SetupFeatureMotion />}
                 </div>
             </div>

@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+
 import {
     Sheet,
     SheetContent,
@@ -23,11 +25,12 @@ import {
 
 import { getSetupFee, saveSetupFee } from "@/lib/api/setup-fee";
 
-export default function SetupTransferOut() {
+export default function SetupTransferIn() {
     const [loading, setLoading] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [data, setData] = useState<any[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
+
     const [form, setForm] = useState({
         bpr_id: "",
         biaya_transfer: 0,
@@ -48,7 +51,7 @@ export default function SetupTransferOut() {
 
     async function load() {
         const res = await getSetupFee("609999");
-        setData(res.transfer_out);
+        setData(res.transfer_in || []);
     }
 
     useEffect(() => {
@@ -56,6 +59,8 @@ export default function SetupTransferOut() {
     }, []);
 
     function handleAdd() {
+        setIsEdit(false);
+
         setForm({
             bpr_id: "609999",
             biaya_transfer: 0,
@@ -63,33 +68,32 @@ export default function SetupTransferOut() {
             fee_bpr: 0,
             markup_bpr: 0,
         });
+
         setSheetOpen(true);
     }
 
     function handleEdit(item: any) {
+        setIsEdit(true);
         setForm(item);
         setSheetOpen(true);
     }
 
     async function handleSubmit() {
-
-
         try {
             setLoading(true);
 
             await saveSetupFee({
                 bpr_id: form.bpr_id,
-                transfer_out: [form],
-                transfer_in: [],
+                transfer_in: [form],
+                transfer_out: [],
                 ppob: [],
                 mtn: [],
             });
 
-            setSheetOpen(false);
-            await load();
             toast.success("Data berhasil disimpan");
 
             setSheetOpen(false);
+
             await load();
         } catch (err) {
             console.error(err);
@@ -104,9 +108,12 @@ export default function SetupTransferOut() {
             {/* HEADER */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-lg font-semibold">Setup Transfer Out</h2>
+                    <h2 className="text-lg font-semibold">
+                        Setup Transfer In
+                    </h2>
+
                     <p className="text-sm text-gray-500">
-                        Kelola biaya transfer keluar
+                        Kelola biaya transfer masuk
                     </p>
                 </div>
 
@@ -120,41 +127,66 @@ export default function SetupTransferOut() {
 
                     <SheetContent side="right" className="w-[420px]">
                         <SheetHeader>
-                            <SheetTitle>Form Transfer Out</SheetTitle>
+                            <SheetTitle>
+                                Form Transfer In
+                            </SheetTitle>
                         </SheetHeader>
 
                         <div className="space-y-4 mt-4 p-8">
                             <div className="space-y-1">
-                                <label className="text-sm text-gray-500">BPR ID</label>
+                                <label className="text-sm text-gray-500">
+                                    BPR ID
+                                </label>
+
                                 <input
                                     value={form.bpr_id}
                                     onChange={(e) =>
-                                        setForm({ ...form, bpr_id: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            bpr_id: e.target.value,
+                                        })
                                     }
                                     disabled={isEdit}
-                                    className={`w-full border rounded-lg px-3 py-2 ${isEdit ? "bg-gray-100" : ""
+                                    className={`w-full border rounded-lg px-3 py-2 ${isEdit
+                                            ? "bg-gray-100"
+                                            : ""
                                         }`}
                                 />
                             </div>
 
                             {fields.map((f) => (
-                                <div key={f.key} className="space-y-1">
-                                    <label className="text-sm text-gray-500">{f.label}</label>
+                                <div
+                                    key={f.key}
+                                    className="space-y-1"
+                                >
+                                    <label className="text-sm text-gray-500">
+                                        {f.label}
+                                    </label>
+
                                     <input
                                         type="number"
                                         value={form[f.key]}
                                         onChange={(e) =>
                                             setForm({
                                                 ...form,
-                                                [f.key]: Number(e.target.value),
+                                                [f.key]: Number(
+                                                    e.target.value
+                                                ),
                                             })
                                         }
                                         className="w-full border rounded-lg px-3 py-2"
                                     />
                                 </div>
                             ))}
-                            <Button onClick={handleSubmit} disabled={loading} className="w-full">
-                                {loading ? "Menyimpan..." : "Simpan"}
+
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className="w-full"
+                            >
+                                {loading
+                                    ? "Menyimpan..."
+                                    : "Simpan"}
                             </Button>
                         </div>
                     </SheetContent>
@@ -171,27 +203,52 @@ export default function SetupTransferOut() {
                             <TableHead>Fee MTD</TableHead>
                             <TableHead>Fee BPR</TableHead>
                             <TableHead>Markup</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
+                            <TableHead className="text-right">
+                                Action
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
 
                     <TableBody>
                         {data.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-6">
+                                <TableCell
+                                    colSpan={6}
+                                    className="text-center py-6"
+                                >
                                     Tidak ada data
                                 </TableCell>
                             </TableRow>
                         ) : (
                             data.map((item, i) => (
                                 <TableRow key={i}>
-                                    <TableCell>{item.bpr_id}</TableCell>
-                                    <TableCell>{item.biaya_transfer}</TableCell>
-                                    <TableCell>{item.fee_mtd}</TableCell>
-                                    <TableCell>{item.fee_bpr}</TableCell>
-                                    <TableCell>{item.markup_bpr}</TableCell>
+                                    <TableCell>
+                                        {item.bpr_id}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {item.biaya_transfer}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {item.fee_mtd}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {item.fee_bpr}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {item.markup_bpr}
+                                    </TableCell>
+
                                     <TableCell className="text-right">
-                                        <Button size="sm" onClick={() => handleEdit(item)}>
+                                        <Button
+                                            size="sm"
+                                            onClick={() =>
+                                                handleEdit(item)
+                                            }
+                                        >
                                             Edit
                                         </Button>
                                     </TableCell>

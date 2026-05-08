@@ -1,6 +1,15 @@
 import { postJson } from "./client";
 
 
+export type TransferIn = {
+    id?: number;
+    bpr_id: string;
+    biaya_transfer: number;
+    fee_mtd: number;
+    fee_bpr: number;
+    markup_bpr: number;
+};
+
 
 export type TransferOut = {
     id?: number;
@@ -34,6 +43,7 @@ export type MTN = {
 
 export type SetupFeeData = {
     transfer_out: TransferOut[] | null;
+    transfer_in: TransferIn[] | null;
     ppob: PPOB[] | null;
     mtn: MTN[] | null;
     feature_motion?: FeatureMotion;
@@ -60,6 +70,7 @@ export async function getSetupFee(bpr_id: string) {
 
     return {
         transfer_out: res.data?.transfer_out ?? [],
+        transfer_in: res.data?.transfer_in ?? [],
         ppob: res.data?.ppob ?? [],
         mtn: res.data?.mtn ?? [],
         feature_motion: res.data?.feature_motion,
@@ -72,6 +83,7 @@ export async function saveSetupFee(payload: {
     bpr_id: string;
     transfer_out: TransferOut[];
     ppob: PPOB[];
+    transfer_in: TransferIn[];
     mtn: MTN[];
     userlogin?: string;
 }) {
@@ -79,6 +91,7 @@ export async function saveSetupFee(payload: {
         action: "insert",
         userlogin: payload.userlogin || "admin",
         data_transfer_out: payload.transfer_out,
+        data_transfer_in: payload.transfer_in,
         data_ppob: payload.ppob,
         data_mtn: payload.mtn,
     });
@@ -94,6 +107,8 @@ export async function deleteSetupFee(
         action: "delete",
         userlogin,
         data_transfer_out: [{ bpr_id }],
+        data_transfer_in: [{ bpr_id }],
+
         data_ppob: [{ bpr_id }],
         data_mtn: [],
     });
@@ -111,6 +126,16 @@ export function getDefaultSetupFee(bpr_id: string) {
                 markup_bpr: 0,
             },
         ],
+         transfer_in: [
+            {
+                bpr_id,
+                biaya_transfer: 0,
+                fee_mtd: 0,
+                fee_bpr: 0,
+                markup_bpr: 0,
+            },
+        ],
+
         ppob: [
             {
                 bpr_id,
