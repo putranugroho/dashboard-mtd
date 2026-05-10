@@ -174,29 +174,43 @@ export function buildRekonsiliasiRows({
   const mappingNameMap = buildMappingNameMap(mappings);
   const saldoGLMap = buildSaldoGLMap(saldoGLItems);
 
-  return saldoItems.map((item) => {
-    const exactKey = sourceKey(deriveSourceType(item), norm(item.no_rek));
+  return saldoItems.reduce<RekonsiliasiRow[]>((result, item) => {
+    const exactKey = sourceKey(
+      deriveSourceType(item),
+      norm(item.no_rek)
+    );
 
     let mapping = mappingMap.get(exactKey);
 
-    // fallback: cocokkan berdasarkan nama rekening / GL
+    // fallback by name
     if (!mapping) {
       const nameKey = normalizeName(item.nama);
       mapping = mappingNameMap.get(nameKey);
     }
 
+    // tidak punya relasi aktif -> jangan tampilkan
+    if (!mapping || !mapping.is_active) {
+      return result;
+    }
+
     const saldoGL =
-      mapping && mapping.sbb_code && mapping.sbb_nobb
-        ? saldoGLMap.get(saldoGLKey(mapping.sbb_code, mapping.sbb_nobb))
+      mapping.sbb_code && mapping.sbb_nobb
+        ? saldoGLMap.get(
+            saldoGLKey(mapping.sbb_code, mapping.sbb_nobb)
+          )
         : undefined;
 
-    return buildRowFromSaldoItem({
-      item,
-      mapping,
-      saldoGL,
-      reconAt,
-    });
-  });
+    result.push(
+      buildRowFromSaldoItem({
+        item,
+        mapping,
+        saldoGL,
+        reconAt,
+      })
+    );
+
+    return result;
+  }, []);
 }
 
 export function downloadRekonsiliasiCsv(

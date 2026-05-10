@@ -78,6 +78,7 @@ const menu = [
                     { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd" },
                     { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
                     { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr" },
+                    { title: "Monitoring User Account", href: "/monitoring/monitoring-user-account" },
                     { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
                 ],
             },
