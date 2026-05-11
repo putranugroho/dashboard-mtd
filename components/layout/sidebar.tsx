@@ -79,6 +79,7 @@ const menu = [
                     { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr" },
                     { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr" },
                     { title: "Monitoring User Account", href: "/monitoring/monitoring-user-account" },
+                    { title: "Monitoring Akun IBPR", href: "/monitoring/monitoring-akun-ibpr"},
                     { title: "Sign in - Sign off", href: "/monitoring/signin-signoff" },
                 ],
             },
