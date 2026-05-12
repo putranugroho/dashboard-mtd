@@ -87,6 +87,7 @@ export default function RekonsiliasiSaldoBPRPage() {
       {selectedDiffRow ? (
         <RekonsiliasiDetailPage
           row={selectedDiffRow}
+          bprId={bprId.trim()}
           onBack={() => setSelectedDiffRow(null)}
         />
       ) : (

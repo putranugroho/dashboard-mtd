@@ -39,7 +39,7 @@ export function getNowReconLabel(date = new Date()): string {
 }
 
 function deriveSourceType(item: SaldoMTDItem): "REK" | "GL" {
-  return norm(item.jns_rek) === "2" ? "GL" : "REK";
+  return norm(item.jns_rek) === "1" ? "GL" : "REK";
 }
 
 function sourceKey(sourceType: string, sourceCode: string): string {

@@ -83,7 +83,10 @@ export default function RekonsiliasiTable({
         ) : null}
 
         {rows.map((row, index) => (
-          <>
+          <div
+            key={`${row.source_type}-${row.source_code}-${row.sbb_code}-${row.sbb_nobb}-${index}`}
+            className="contents"
+          >
             <CellBox
               key={`type-${row.source_code}-${index}`}
               className="flex items-center justify-center"
@@ -145,7 +148,7 @@ export default function RekonsiliasiTable({
             >
               {row.sbb_code || "-"}
             </CellBox>
-          </>
+          </div>
         ))}
       </div>
     </div>

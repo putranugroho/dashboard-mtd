@@ -77,7 +77,19 @@ export type RekonTransactionItem = {
   nominal: number;
 };
 
+export type RekonTransactionNominalDiffItem = {
+  tgl_trans: string;
+  no_dok: string;
+  rrn: string;
+  keterangan_core: string;
+  keterangan_accounting: string;
+  nominal_core: number;
+  nominal_accounting: number;
+  selisih_nominal: number;
+};
+
 export type RekonTransactionDiffResult = {
   missingInAccounting: RekonTransactionItem[];
   missingInCore: RekonTransactionItem[];
+  nominalMismatch: RekonTransactionNominalDiffItem[];
 };
