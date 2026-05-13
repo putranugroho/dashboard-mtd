@@ -191,18 +191,17 @@ export default function SetupMasterMenuPage() {
     try {
       setSubmitting(true);
 
-      const submittedModule = values.modul.trim().toUpperCase();
+      const submittedModule = (values.modul || type).trim().toUpperCase();
+
+      const payload = {
+        ...values,
+        modul: submittedModule,
+      };
 
       if (selectedItem) {
-        await updateMasterMenu(selectedItem.id, {
-          ...values,
-          modul: submittedModule,
-        });
+        await updateMasterMenu(selectedItem.id, payload);
       } else {
-        await createMasterMenu({
-          ...values,
-          modul: submittedModule,
-        });
+        await createMasterMenu(payload);
       }
 
       setSheetOpen(false);
@@ -337,21 +336,7 @@ export default function SetupMasterMenuPage() {
 
           <div className="pb-6">
             <MasterMenuForm
-              initialData={
-                selectedItem ?? {
-                  id: 0,
-                  modul: type,
-                  menu: "",
-                  submenu: "",
-                  subsubmenu: "",
-                  urut: 1,
-                  modul_urut: 1,
-                  menu_urut: 1,
-                  submenu_urut: 1,
-                  subsubmenu_urut: 1,
-                  is_active: true,
-                }
-              }
+              initialData={selectedItem}
               allData={data}
               submitting={submitting}
               onSubmit={handleSubmit}
