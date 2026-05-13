@@ -52,7 +52,6 @@ const menu: SidebarItem[] = [
           { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr", permission: PERMISSIONS.MONITORING_GATEWAY_BPR_VIEW },
           { title: "Monitoring User Account", href: "/monitoring/monitoring-user-account", permission: PERMISSIONS.MONITORING_USER_ACCOUNT_VIEW },
           { title: "Monitoring Akun IBPR", href: "/monitoring/monitoring-akun-ibpr", permission: PERMISSIONS.MONITORING_AKUN_IBPR_VIEW },
-          { title: "Signin / Signoff", href: "/monitoring/signin-signoff", permission: PERMISSIONS.SIGNIN_SIGNOFF_VIEW },
         ],
       },
     ],
