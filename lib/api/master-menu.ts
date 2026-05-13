@@ -29,20 +29,30 @@ function normalizeList<T>(payload: unknown): T[] {
 }
 
 export async function getMasterMenus(type = "CMS"): Promise<MasterMenuItem[]> {
-  const res = await postJson<ApiResponse<unknown>>("/master_menu", {
-    action: "list",
-    type,
-  });
+  const res = await postJson<ApiResponse<unknown> | MasterMenuItem[]>(
+    "/master_menu",
+    {
+      action: "list",
+      type,
+    }
+  );
 
-  return normalizeList<MasterMenuItem>(res.data);
+  return normalizeList<MasterMenuItem>(
+    Array.isArray(res) ? res : res.data
+  );
 }
 
 export async function getMasterMenuModules(): Promise<MasterMenuModuleOption[]> {
-  const res = await postJson<ApiResponse<unknown>>("/master_menu", {
-    action: "list_module",
-  });
+  const res = await postJson<ApiResponse<unknown> | MasterMenuModuleOption[]>(
+    "/master_menu",
+    {
+      action: "list_module",
+    }
+  );
 
-  return normalizeList<MasterMenuModuleOption>(res.data);
+  return normalizeList<MasterMenuModuleOption>(
+    Array.isArray(res) ? res : res.data
+  );
 }
 
 export async function getMasterMenuMenus(
