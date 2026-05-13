@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { clearSession } from "@/lib/auth/session";
@@ -29,22 +29,40 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-      <div className="text-lg font-semibold">{getTitle(pathname)}</div>
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-white px-3 sm:px-4 lg:h-16 lg:px-6">
+      <div className="flex min-w-0 items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          aria-label="Open menu"
+        >
+          <Menu className="size-5" />
+        </Button>
 
-      <div className="flex items-center gap-4">
-        <div className="text-right">
-          <div className="text-sm font-medium text-gray-700">Hi, {displayName}</div>
-          <div className="text-xs text-gray-500">{user?.role_name || "Dashboard User"}</div>
+        <div className="min-w-0 truncate text-base font-semibold lg:text-lg">
+          {getTitle(pathname)}
+        </div>
+      </div>
+
+      <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 lg:gap-4">
+        <div className="hidden min-w-0 text-right sm:block">
+          <div className="max-w-[160px] truncate text-xs font-medium text-gray-700 lg:max-w-[240px] lg:text-sm">
+            Hi, {displayName}
+          </div>
+          <div className="max-w-[160px] truncate text-[11px] text-gray-500 lg:max-w-[240px] lg:text-xs">
+            {user?.role_name || "Dashboard User"}
+          </div>
         </div>
 
-        <div className="w-8 h-8 bg-green-600 text-white flex items-center justify-center rounded-full">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-600 text-sm text-white">
           {initial}
         </div>
 
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          <LogOut className="mr-1 size-4" />
-          Logout
+        <Button variant="outline" size="sm" onClick={handleLogout} className="h-8 px-2 lg:px-3">
+          <LogOut className="size-4 lg:mr-1" />
+          <span className="hidden lg:inline">Logout</span>
         </Button>
       </div>
     </header>

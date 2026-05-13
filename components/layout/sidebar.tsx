@@ -4,12 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  Settings,
-  ChevronRight,
-  ChevronDown,
-  LifeBuoy,
-} from "lucide-react";
+import { Settings, ChevronRight, ChevronDown, LifeBuoy } from "lucide-react";
 import clsx from "clsx";
 
 import { useSession } from "@/lib/auth/use-session";
@@ -80,14 +75,15 @@ function SubMenu({ item }: { item: SidebarItem }) {
     <Link
       href={item.href}
       className={clsx(
-        "flex items-center justify-between pl-10 pr-3 py-2 text-sm rounded-md",
+        "flex items-center justify-between rounded-md py-1.5 pl-8 pr-2 text-[12px] leading-tight transition-colors lg:py-2 lg:pl-10 lg:pr-3 lg:text-sm",
         pathname === item.href
-          ? "text-green-600 font-medium"
+          ? "font-medium text-green-600"
           : "text-gray-500 hover:text-black"
       )}
+      title={item.title}
     >
-      {item.title}
-      <ChevronRight size={14} />
+      <span className="min-w-0 truncate">{item.title}</span>
+      <ChevronRight className="ml-2 shrink-0" size={14} />
     </Link>
   );
 }
@@ -101,21 +97,26 @@ function ChildMenu({ item }: { item: SidebarItem }) {
 
   return (
     <div>
-      <div
+      <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between pl-6 pr-3 py-2 cursor-pointer text-gray-700 hover:bg-gray-100 rounded-md"
+        className="flex w-full items-center justify-between rounded-md py-1.5 pl-5 pr-2 text-left text-[12px] text-gray-700 hover:bg-gray-100 lg:py-2 lg:pl-6 lg:pr-3 lg:text-sm"
       >
-        <span>{item.title}</span>
-        {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-      </div>
+        <span className="min-w-0 truncate">{item.title}</span>
+        {open ? (
+          <ChevronDown className="ml-2 shrink-0" size={14} />
+        ) : (
+          <ChevronRight className="ml-2 shrink-0" size={14} />
+        )}
+      </button>
 
-      {open && (
+      {open ? (
         <div>
           {item.children.map((sub) => (
             <SubMenu key={`${item.title}-${sub.title}`} item={sub} />
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -131,20 +132,20 @@ function MainMenu({ item }: { item: SidebarItem }) {
         <Link
           href={item.href}
           className={clsx(
-            "flex items-center gap-3 px-3 py-2 rounded-md relative",
+            "relative flex items-center gap-2 rounded-md px-3 py-2 text-sm",
             active
-              ? "text-green-600 font-semibold bg-green-50"
+              ? "bg-green-50 font-semibold text-green-600"
               : "text-gray-700 hover:bg-gray-100"
           )}
         >
-          {active && <div className="absolute left-0 top-0 h-full w-1 bg-green-600 rounded-r-full" />}
-          <Icon size={18} />
-          {item.title}
+          {active ? <div className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-green-600" /> : null}
+          <Icon className="shrink-0" size={18} />
+          <span className="min-w-0 truncate">{item.title}</span>
         </Link>
       ) : (
-        <div className="flex items-center gap-3 px-3 py-2 font-semibold text-black">
-          <Icon size={18} />
-          {item.title}
+        <div className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-black">
+          <Icon className="shrink-0" size={18} />
+          <span className="min-w-0 truncate">{item.title}</span>
         </div>
       )}
 
@@ -166,45 +167,46 @@ export default function Sidebar() {
   const initial = displayName.slice(0, 1).toUpperCase();
 
   return (
-    <aside className="w-64 h-screen bg-white border-r flex flex-col">
-      <div className="flex flex-col h-full">
-        <div>
-          <div className="flex justify-center items-center px-4 py-4">
-            <Image
-              src="/logo-susan.png"
-              alt="SUSAN"
-              width={160}
-              height={40}
-              className="object-contain"
-            />
-          </div>
-
-          <div className="mx-4 mb-4 p-3 bg-gray-50 rounded-xl flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold">
-              {initial}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm text-gray-800 font-semibold">Hi, {displayName}</p>
-              <p className="truncate text-xs text-gray-500">{user?.role_name || "Dashboard User"}</p>
-            </div>
-          </div>
+    <aside className="hidden h-full w-[210px] shrink-0 flex-col overflow-hidden border-r bg-white md:flex lg:w-64">
+      <div className="shrink-0">
+        <div className="flex items-center justify-center px-3 py-3 lg:px-4 lg:py-4">
+          <Image
+            src="/logo-susan.png"
+            alt="SUSAN"
+            width={160}
+            height={40}
+            priority
+            className="h-auto max-h-12 w-auto object-contain lg:max-h-16"
+          />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2">
-          <p className="text-xs text-gray-400 px-3 mb-2">Main Menu</p>
-
-          {filteredMenu.length ? (
-            filteredMenu.map((item) => <MainMenu key={item.title} item={item} />)
-          ) : (
-            <div className="mx-3 rounded-lg bg-yellow-50 p-3 text-xs text-yellow-700">
-              User belum memiliki akses menu.
-            </div>
-          )}
+        <div className="mx-3 mb-3 flex items-center gap-2 rounded-xl bg-gray-50 p-2 lg:mx-4 lg:mb-4 lg:gap-3 lg:p-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-200 text-sm font-semibold text-green-700 lg:h-10 lg:w-10">
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-gray-800 lg:text-sm">Hi, {displayName}</p>
+            <p className="truncate text-[11px] text-gray-500 lg:text-xs">{user?.role_name || "Dashboard User"}</p>
+          </div>
         </div>
+      </div>
 
-        <div className="p-4 border-t flex items-center gap-2 text-sm text-gray-500">
-          <LifeBuoy size={16} />
-          IT Support
+      <nav className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+        <p className="mb-2 px-3 text-[11px] text-gray-400 lg:text-xs">Main Menu</p>
+
+        {filteredMenu.length ? (
+          filteredMenu.map((item) => <MainMenu key={item.title} item={item} />)
+        ) : (
+          <div className="mx-3 rounded-lg bg-yellow-50 p-3 text-xs text-yellow-700">
+            User belum memiliki akses menu.
+          </div>
+        )}
+      </nav>
+
+      <div className="shrink-0 border-t p-3 text-xs text-gray-500 lg:p-4 lg:text-sm">
+        <div className="flex items-center gap-2">
+          <LifeBuoy className="shrink-0" size={16} />
+          <span className="truncate">IT Support</span>
         </div>
       </div>
     </aside>
