@@ -11,6 +11,8 @@ type Props = {
   reconAt: string;
   loading: boolean;
   canDownload: boolean;
+  canSearch?: boolean;
+  canExport?: boolean;
   onChangeBprId: (value: string, item?: ListBprItem) => void;
   onRekon: () => void;
   onDownload: () => void;
@@ -21,6 +23,8 @@ export default function RekonsiliasiSearchForm({
   reconAt,
   loading,
   canDownload,
+  canSearch = true,
+  canExport = true,
   onChangeBprId,
   onRekon,
   onDownload,
@@ -32,7 +36,7 @@ export default function RekonsiliasiSearchForm({
         <div className="w-full md:w-[360px]">
           <BprSelect
             value={bprId}
-            disabled={loading}
+            disabled={loading || !canSearch}
             label="BPR"
             placeholder="Pilih BPR"
             onChange={onChangeBprId}
@@ -41,7 +45,8 @@ export default function RekonsiliasiSearchForm({
 
         <Button
           onClick={onRekon}
-          disabled={loading || !bprId}
+          disabled={loading || !bprId || !canSearch}
+          title={!canSearch ? "Anda tidak memiliki akses proses rekonsiliasi." : undefined}
           className="h-11 px-4"
         >
           <RefreshCcw className="mr-2 size-4" />
@@ -50,7 +55,8 @@ export default function RekonsiliasiSearchForm({
 
         <Button
           onClick={onDownload}
-          disabled={!canDownload || loading}
+          disabled={!canDownload || loading || !canExport}
+          title={!canExport ? "Anda tidak memiliki akses export." : undefined}
           variant="outline"
           className="h-11 px-4"
         >

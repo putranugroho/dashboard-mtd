@@ -14,6 +14,7 @@ type Props = {
   onChangeQuery: (value: string) => void;
   onChangeSortBy: (value: GatewayMonitorSortBy) => void;
   onRefresh: () => void;
+  canCheck?: boolean;
 };
 
 export default function MonitoringGatewayHeader({
@@ -24,6 +25,7 @@ export default function MonitoringGatewayHeader({
   onChangeQuery,
   onChangeSortBy,
   onRefresh,
+  canCheck = true,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -64,7 +66,7 @@ export default function MonitoringGatewayHeader({
               <option value="checked_at">Sort: Last Checked</option>
             </select>
 
-            <Button onClick={onRefresh} disabled={loading} className="rounded-xl">
+            <Button onClick={onRefresh} disabled={loading || !canCheck} title={!canCheck ? "Anda tidak memiliki akses check gateway." : undefined} className="rounded-xl">
               <RefreshCcw className="mr-2 size-4" />
               {loading ? "Memuat..." : "Refresh"}
             </Button>

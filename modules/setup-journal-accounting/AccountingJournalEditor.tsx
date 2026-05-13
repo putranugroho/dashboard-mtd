@@ -23,6 +23,8 @@ type Props = {
   onChange?: (next: JournalAccountingDetail) => void;
   onSave?: (detail: JournalAccountingDetail) => Promise<void>;
   onDelete?: (tcode: string) => Promise<void>;
+  canSave?: boolean;
+  canDelete?: boolean;
 };
 
 function normalizeJournals(
@@ -68,6 +70,8 @@ export default function AccountingJournalEditor({
   onChange,
   onSave,
   onDelete,
+  canSave = true,
+  canDelete = true,
 }: Props) {
   const [localDetail, setLocalDetail] = useState<JournalAccountingDetail | null>(
     detail
@@ -106,6 +110,7 @@ export default function AccountingJournalEditor({
   };
 
   const handleAddRow = () => {
+    if (!canSave) return;
     if (!normalizedDetail) return;
 
     const nextNo = normalizedDetail.journals.length + 1;
@@ -116,6 +121,7 @@ export default function AccountingJournalEditor({
   };
 
   const handleRowChange = (index: number, patch: Partial<JournalAccountingItem>) => {
+    if (!canSave) return;
     if (!normalizedDetail) return;
 
     const journals = [...normalizedDetail.journals];
@@ -137,6 +143,7 @@ export default function AccountingJournalEditor({
   };
 
   const handleRemoveLastRow = (index: number) => {
+    if (!canDelete) return;
     if (!normalizedDetail) return;
     if (normalizedDetail.journals.length <= 1) return;
     if (index !== normalizedDetail.journals.length - 1) return;
@@ -149,6 +156,7 @@ export default function AccountingJournalEditor({
   };
 
   const handleSave = async () => {
+    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan journal accounting."); return; }
     if (!normalizedDetail) return;
 
     if (normalizedDetail.journals.length === 0) {
@@ -173,6 +181,7 @@ export default function AccountingJournalEditor({
   };
 
   const handleDelete = async () => {
+    if (!canDelete) { window.alert("Anda tidak memiliki akses hapus journal accounting."); return; }
     if (!normalizedDetail) return;
     if (!window.confirm(`Hapus setup accounting untuk TCode ${normalizedDetail.tcode}?`)) {
       return;
@@ -226,12 +235,12 @@ export default function AccountingJournalEditor({
         </div>
 
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button type="button" variant="outline" onClick={handleAddRow}>
+          <Button type="button" variant="outline" onClick={handleAddRow} disabled={!canSave} title={!canSave ? "Anda tidak memiliki akses tambah/update journal accounting." : undefined}>
             <Plus className="mr-2 h-4 w-4" />
             Tambah Journal
           </Button>
 
-          <Button type="button" onClick={handleSave} disabled={submitting}>
+          <Button type="button" onClick={handleSave} disabled={submitting || !canSave} title={!canSave ? "Anda tidak memiliki akses menyimpan journal accounting." : undefined}>
             <Save className="mr-2 h-4 w-4" />
             Simpan Setup Journal
           </Button>
@@ -240,7 +249,8 @@ export default function AccountingJournalEditor({
             type="button"
             variant="destructive"
             onClick={handleDelete}
-            disabled={submitting}
+            disabled={submitting || !canDelete}
+            title={!canDelete ? "Anda tidak memiliki akses hapus journal accounting." : undefined}
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Hapus Setup
@@ -255,7 +265,7 @@ export default function AccountingJournalEditor({
           item={item}
           coaOptions={coaOptions}
           onChange={handleRowChange}
-          canRemove={index === normalizedDetail.journals.length - 1 && normalizedDetail.journals.length > 1}
+          canRemove={canDelete && index === normalizedDetail.journals.length - 1 && normalizedDetail.journals.length > 1}
           onRemoveLast={() => handleRemoveLastRow(index)}
           errors={rowErrors[index]}
         />

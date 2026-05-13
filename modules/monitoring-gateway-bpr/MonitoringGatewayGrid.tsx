@@ -12,6 +12,7 @@ type Props = {
   normalItems: GatewayMonitorItem[];
   loading: boolean;
   onOpenPIC: (item: GatewayMonitorItem) => void;
+  canDetail?: boolean;
 };
 
 function StatusBadge({ item }: { item: GatewayMonitorItem }) {
@@ -31,12 +32,14 @@ function GatewayTable({
   items,
   type,
   onOpenPIC,
+  canDetail = true,
 }: {
   title: string;
   description: string;
   items: GatewayMonitorItem[];
   type: "problem" | "normal";
   onOpenPIC: (item: GatewayMonitorItem) => void;
+  canDetail?: boolean;
 }) {
   const icon =
     type === "problem" ? (
@@ -136,6 +139,8 @@ function GatewayTable({
                         type="button"
                         size="sm"
                         variant="outline"
+                        disabled={!canDetail}
+                        title={!canDetail ? "Anda tidak memiliki akses detail PIC." : undefined}
                         onClick={() => onOpenPIC(item)}
                       >
                         <Eye className="mr-2 size-4" />
@@ -158,6 +163,7 @@ export default function MonitoringGatewayGrid({
   normalItems,
   loading,
   onOpenPIC,
+  canDetail = true,
 }: Props) {
   if (loading) {
     return (
@@ -175,6 +181,7 @@ export default function MonitoringGatewayGrid({
         items={problemItems}
         type="problem"
         onOpenPIC={onOpenPIC}
+        canDetail={canDetail}
       />
 
       <GatewayTable
@@ -183,6 +190,7 @@ export default function MonitoringGatewayGrid({
         items={normalItems}
         type="normal"
         onOpenPIC={onOpenPIC}
+        canDetail={canDetail}
       />
     </div>
   );

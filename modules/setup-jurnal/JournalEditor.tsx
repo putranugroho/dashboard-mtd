@@ -17,6 +17,8 @@ import {
 type Props = {
   detail: JournalDetail | null;
   onSave?: (detail: JournalDetail) => void;
+  canSave?: boolean;
+  canDelete?: boolean;
 };
 
 function createEmptyJournal(nextIndex: number): JournalItem {
@@ -65,7 +67,7 @@ function validateJournal(item: JournalItem): JournalRowErrors {
   return errors;
 }
 
-export default function JournalEditor({ detail, onSave }: Props) {
+export default function JournalEditor({ detail, onSave, canSave = true, canDelete = true }: Props) {
   const [localDetail, setLocalDetail] = useState<JournalDetail | null>(detail);
   const [rowErrors, setRowErrors] = useState<Record<number, JournalRowErrors>>({});
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -99,6 +101,7 @@ export default function JournalEditor({ detail, onSave }: Props) {
   }, [localDetail]);
 
   const handleAddRow = () => {
+    if (!canSave) return;
     if (!normalizedDetail) return;
 
     const nextIndex = normalizedDetail.journals.length;
@@ -110,6 +113,7 @@ export default function JournalEditor({ detail, onSave }: Props) {
   };
 
   const handleRowChange = (index: number, patch: Partial<JournalItem>) => {
+    if (!canSave) return;
     if (!normalizedDetail) return;
 
     const journals = [...normalizedDetail.journals];
@@ -140,6 +144,7 @@ export default function JournalEditor({ detail, onSave }: Props) {
   };
 
   const handleRemoveRow = (index: number) => {
+    if (!canDelete) return;
     if (!normalizedDetail) return;
     if (index !== normalizedDetail.journals.length - 1) return;
 
@@ -162,6 +167,7 @@ export default function JournalEditor({ detail, onSave }: Props) {
   };
 
   const handleSave = () => {
+    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan setup jurnal."); return; }
     if (!normalizedDetail) return;
 
     if (normalizedDetail.journals.length === 0) {
@@ -217,11 +223,11 @@ export default function JournalEditor({ detail, onSave }: Props) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={handleAddRow}>
+            <Button variant="outline" onClick={handleAddRow} disabled={!canSave} title={!canSave ? "Anda tidak memiliki akses tambah/update setup jurnal." : undefined}>
               <Plus className="mr-1 size-4" />
               Tambah Jurnal
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} disabled={!canSave} title={!canSave ? "Anda tidak memiliki akses menyimpan setup jurnal." : undefined}>
               <Save className="mr-1 size-4" />
               Simpan Setup Jurnal
             </Button>
@@ -270,7 +276,7 @@ export default function JournalEditor({ detail, onSave }: Props) {
             key={`${item.id}-${index}`}
             item={item}
             index={index}
-            canRemove={index === normalizedDetail.journals.length - 1}
+            canRemove={canDelete && index === normalizedDetail.journals.length - 1}
             errors={rowErrors[index]}
             onChange={handleRowChange}
             onRemove={handleRemoveRow}

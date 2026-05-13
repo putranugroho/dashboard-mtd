@@ -4,6 +4,9 @@ import { Search, Save } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import PermissionButton from "@/components/auth/PermissionButton";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { Input } from "@/components/ui/input";
 
 import BprForm from "./BprForm";
@@ -41,6 +44,9 @@ export default function DataBprPage() {
   const [tcodes, setTcodes] = useState<BprTcodeItem[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const { can } = useSession();
+  const canSave = can(PERMISSIONS.DATA_BPR_SAVE);
+  const canRelasi = can(PERMISSIONS.DATA_BPR_RELASI);
 
   const handleSearch = async () => {
     const code = searchCode.trim();
@@ -75,6 +81,7 @@ export default function DataBprPage() {
   };
 
   const handleToggleTcode = (tcodeId: number) => {
+    if (!canRelasi) return;
     setTcodes((prev) =>
       prev.map((item) => {
         if (item.id !== tcodeId) return item;
@@ -110,6 +117,10 @@ export default function DataBprPage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!canSave) {
+      window.alert("Anda tidak memiliki akses untuk menyimpan profile BPR.");
+      return;
+    }
     try {
       let nextProfile = profile;
 
@@ -137,6 +148,10 @@ export default function DataBprPage() {
   };
 
   const handleSaveTcode = async () => {
+    if (!canRelasi) {
+      window.alert("Anda tidak memiliki akses relasi TCode BPR.");
+      return;
+    }
     try {
       const linkedIds = tcodes
         .filter((item) => item.is_linked)
@@ -203,16 +218,17 @@ export default function DataBprPage() {
           />
 
           <div className="flex justify-end">
-            <Button onClick={handleSaveProfile}>
+            <PermissionButton permission={PERMISSIONS.DATA_BPR_SAVE} onClick={handleSaveProfile}>
               <Save className="mr-1 size-4" />
               Simpan Profile BPR
-            </Button>
+            </PermissionButton>
           </div>
 
           <BprTcodeMapping
             data={tcodes}
             onToggle={handleToggleTcode}
             onSave={handleSaveTcode}
+            canRelasi={canRelasi}
           />
         </>
       )}

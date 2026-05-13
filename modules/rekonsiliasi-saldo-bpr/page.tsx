@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 
 import { getBprDetailWithTcodes } from "@/lib/api/bpr";
 import { getRekonMappingList } from "@/lib/api/rekon-mapping";
@@ -18,6 +20,10 @@ import {
 } from "./utils";
 
 export default function RekonsiliasiSaldoBPRPage() {
+  const { can } = useSession();
+  const canSearch = can(PERMISSIONS.REKONSILIASI_SALDO_BPR_SEARCH);
+  const canDetail = can(PERMISSIONS.REKONSILIASI_SALDO_BPR_DETAIL);
+  const canExport = can(PERMISSIONS.REKONSILIASI_SALDO_BPR_EXPORT);
   const [bprId, setBprId] = useState("");
   const [bprName, setBprName] = useState("");
   const [reconAt, setReconAt] = useState("");
@@ -26,6 +32,7 @@ export default function RekonsiliasiSaldoBPRPage() {
   const [selectedDiffRow, setSelectedDiffRow] = useState<RekonsiliasiRow | null>(null);
 
   const handleRekon = async () => {
+    if (!canSearch) { window.alert("Anda tidak memiliki akses proses rekonsiliasi."); return; }
     const nextBprId = bprId.trim();
 
     if (!nextBprId) {
@@ -74,6 +81,7 @@ export default function RekonsiliasiSaldoBPRPage() {
   };
 
   const handleDownload = () => {
+    if (!canExport) { window.alert("Anda tidak memiliki akses export rekonsiliasi."); return; }
     if (!rows.length) {
       window.alert("Belum ada data rekonsiliasi untuk diunduh.");
       return;
@@ -98,6 +106,8 @@ export default function RekonsiliasiSaldoBPRPage() {
             reconAt={reconAt}
             loading={loading}
             canDownload={rows.length > 0}
+            canSearch={canSearch}
+            canExport={canExport}
             onChangeBprId={(value, item) => {
               setBprId(value);
               setBprName(item?.nama_bpr || "");
@@ -112,7 +122,8 @@ export default function RekonsiliasiSaldoBPRPage() {
           <RekonsiliasiTable
             rows={rows}
             loading={loading}
-            onOpenDetail={setSelectedDiffRow}
+            onOpenDetail={canDetail ? setSelectedDiffRow : undefined}
+            canDetail={canDetail}
           />
         </>
       )}

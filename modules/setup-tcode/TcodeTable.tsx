@@ -16,9 +16,10 @@ type Props = {
   data: TcodeItem[];
   onEdit: (item: TcodeItem) => void;
   onDelete: (item: TcodeItem) => void;
+  canSave?: boolean;
 };
 
-export default function TcodeTable({ data, onEdit, onDelete }: Props) {
+export default function TcodeTable({ data, onEdit, canSave = true }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border bg-white">
       <Table>
@@ -57,15 +58,8 @@ export default function TcodeTable({ data, onEdit, onDelete }: Props) {
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onEdit(item)}>
+                    <Button variant="outline" size="sm" onClick={() => onEdit(item)} disabled={!canSave} title={!canSave ? "Anda tidak memiliki akses ubah TCode." : undefined}>
                       Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => onDelete(item)}
-                    >
-                      Hapus
                     </Button>
                   </div>
                 </TableCell>

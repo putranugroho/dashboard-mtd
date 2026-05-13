@@ -11,6 +11,7 @@ type Props = {
   initialData?: MerchantItem | null;
   onSubmit: (values: MerchantFormValues) => void;
   onCancel: () => void;
+  disabled?: boolean;
 };
 
 const emptyForm: MerchantFormValues = {
@@ -26,6 +27,7 @@ export default function MerchantForm({
   initialData,
   onSubmit,
   onCancel,
+  disabled = false,
 }: Props) {
   const [form, setForm] = useState<MerchantFormValues>(emptyForm);
 
@@ -61,6 +63,7 @@ export default function MerchantForm({
       return;
     }
 
+    if (disabled) return;
     onSubmit({
       ...form,
       merchant_id: form.merchant_id.trim(),
@@ -80,7 +83,7 @@ export default function MerchantForm({
             setForm((prev) => ({ ...prev, merchant_id: e.target.value }))
           }
           placeholder="Contoh: MRC001"
-          disabled={mode === "edit"}
+          disabled={disabled || mode === "edit"}
         />
       </div>
 
@@ -94,6 +97,7 @@ export default function MerchantForm({
             setForm((prev) => ({ ...prev, nama_merchant: e.target.value }))
           }
           placeholder="Masukkan nama merchant"
+          disabled={disabled}
         />
       </div>
 
@@ -105,6 +109,7 @@ export default function MerchantForm({
             setForm((prev) => ({ ...prev, pic: e.target.value }))
           }
           placeholder="Nama PIC merchant"
+          disabled={disabled}
         />
       </div>
 
@@ -116,6 +121,7 @@ export default function MerchantForm({
             setForm((prev) => ({ ...prev, no_hp: e.target.value }))
           }
           placeholder="Contoh: 081234567890"
+          disabled={disabled}
         />
       </div>
 
@@ -129,6 +135,7 @@ export default function MerchantForm({
 
         <button
           type="button"
+          disabled={disabled}
           onClick={() =>
             setForm((prev) => ({ ...prev, is_active: !prev.is_active }))
           }
@@ -147,7 +154,7 @@ export default function MerchantForm({
           Batal
         </Button>
 
-        <Button type="button" onClick={handleSubmit}>
+        <Button type="button" onClick={handleSubmit} disabled={disabled}>
           {mode === "edit" ? "Simpan Perubahan" : "Tambah Merchant"}
         </Button>
       </div>

@@ -30,6 +30,8 @@ type Props = {
   loading: boolean;
   onSelectSBB: (index: number, option: SBBOption | null) => void;
   onDeleteRelasi: (row: RelasiRow) => void;
+  canRelasi?: boolean;
+  canDelete?: boolean;
 };
 
 function SBBSelect({
@@ -106,6 +108,8 @@ export default function RelasiTable({
   loading,
   onSelectSBB,
   onDeleteRelasi,
+  canRelasi = true,
+  canDelete = true,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -160,7 +164,7 @@ export default function RelasiTable({
                   <SBBSelect
                     value={row.selected_sbb_code}
                     options={options}
-                    disabled={loading}
+                    disabled={loading || !canRelasi}
                     onChange={(option) => onSelectSBB(index, option)}
                   />
 
@@ -169,9 +173,9 @@ export default function RelasiTable({
                       type="button"
                       variant="outline"
                       size="sm"
-                      disabled={loading}
+                      disabled={loading || !canRelasi}
                       onClick={() => onSelectSBB(index, null)}
-                      title="Kosongkan pilihan sementara"
+                      title={!canRelasi ? "Anda tidak memiliki akses mengubah relasi." : "Kosongkan pilihan sementara"}
                     >
                       <X className="size-4" />
                     </Button>
@@ -184,7 +188,8 @@ export default function RelasiTable({
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={loading || !row.selected_sbb_code}
+                  disabled={loading || !row.selected_sbb_code || !canDelete}
+                  title={!canDelete ? "Anda tidak memiliki akses hapus relasi." : undefined}
                   onClick={() => onDeleteRelasi(row)}
                   className="text-red-600 hover:text-red-700"
                 >

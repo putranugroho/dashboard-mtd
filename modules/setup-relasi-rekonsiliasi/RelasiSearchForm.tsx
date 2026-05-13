@@ -10,7 +10,10 @@ type Props = {
   bprName: string;
   loading: boolean;
   saving: boolean;
-  canSave: boolean;
+  rowsCount: number;
+  hasSelectedRows: boolean;
+  canRelasi?: boolean;
+  canSave?: boolean;
   onChangeBprId: (value: string, item?: ListBprItem) => void;
   onSearch: () => void;
   onSave: () => void;
@@ -20,7 +23,10 @@ export default function RelasiSearchForm({
   bprId,
   loading,
   saving,
-  canSave,
+  rowsCount,
+  hasSelectedRows,
+  canRelasi = true,
+  canSave = true,
   onChangeBprId,
   onSearch,
   onSave,
@@ -28,11 +34,10 @@ export default function RelasiSearchForm({
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 md:flex-row md:items-end">
-        
         <div className="w-[360px]">
           <BprSelect
             value={bprId}
-            disabled={loading || saving}
+            disabled={loading || saving || !canRelasi}
             label="BPR"
             placeholder="Pilih BPR"
             onChange={onChangeBprId}
@@ -41,7 +46,8 @@ export default function RelasiSearchForm({
 
         <Button
           onClick={onSearch}
-          disabled={loading || saving || !bprId}
+          disabled={loading || saving || !bprId || !canRelasi}
+          title={!canRelasi ? "Anda tidak memiliki akses relasi." : undefined}
           className="h-11 px-4"
         >
           <Search className="mr-2 size-4" />
@@ -50,13 +56,13 @@ export default function RelasiSearchForm({
 
         <Button
           onClick={onSave}
-          disabled={!canSave || saving || loading}
+          disabled={saving || loading || rowsCount === 0 || !hasSelectedRows || !canSave}
+          title={!canSave ? "Anda tidak memiliki akses simpan relasi." : undefined}
           className="h-11 px-4"
         >
           <Save className="mr-2 size-4" />
           {saving ? "Menyimpan..." : "Simpan Relasi"}
         </Button>
-
       </div>
     </div>
   );

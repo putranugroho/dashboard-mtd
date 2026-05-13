@@ -10,6 +10,7 @@ type Props = {
   loading: boolean;
   onChange: (filter: UserAccountFilter) => void;
   onReload: () => void;
+  canSearch?: boolean;
 };
 
 export default function UserAccountFilterBar({
@@ -17,6 +18,7 @@ export default function UserAccountFilterBar({
   loading,
   onChange,
   onReload,
+  canSearch = true,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -30,7 +32,7 @@ export default function UserAccountFilterBar({
           </p>
         </div>
 
-        <Button type="button" onClick={onReload} disabled={loading}>
+        <Button type="button" onClick={onReload} disabled={loading || !canSearch} title={!canSearch ? "Anda tidak memiliki akses pencarian." : undefined}>
           <RefreshCw className="mr-2 size-4" />
           {loading ? "Memuat..." : "Refresh"}
         </Button>

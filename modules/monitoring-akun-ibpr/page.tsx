@@ -1,6 +1,8 @@
 "use client";
 
 import { Download } from "lucide-react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -108,6 +110,9 @@ function downloadCsv(filename: string, rows: AkunIBPRItem[]) {
 }
 
 export default function MonitoringAkunIBPRPage() {
+  const { can } = useSession();
+  const canSearch = can(PERMISSIONS.MONITORING_AKUN_IBPR_SEARCH);
+  const canExport = can(PERMISSIONS.MONITORING_AKUN_IBPR_EXPORT);
   const [filter, setFilter] = useState<AkunIBPRFilter>(initialFilter);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<AkunIBPRItem[]>([]);
@@ -162,6 +167,7 @@ export default function MonitoringAkunIBPRPage() {
   const summary = useMemo(() => buildSummary(filteredData), [filteredData]);
 
   const handleDownload = () => {
+    if (!canExport) { window.alert("Anda tidak memiliki akses export monitoring akun IBPR."); return; }
     downloadCsv(
       `monitoring-akun-ibpr-${filter.bprId || "all"}.csv`,
       filteredData
@@ -192,7 +198,8 @@ export default function MonitoringAkunIBPRPage() {
         <Button
           type="button"
           onClick={handleDownload}
-          disabled={filteredData.length === 0}
+          disabled={filteredData.length === 0 || !canExport}
+          title={!canExport ? "Anda tidak memiliki akses export." : undefined}
         >
           <Download className="mr-2 size-4" />
           Download Excel

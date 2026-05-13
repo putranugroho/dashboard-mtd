@@ -1,6 +1,8 @@
 "use client";
 
 import { Download } from "lucide-react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -102,6 +104,9 @@ function downloadCsv(filename: string, rows: UserAccountItem[]) {
 }
 
 export default function MonitoringUserAccountPage() {
+  const { can } = useSession();
+  const canSearch = can(PERMISSIONS.MONITORING_USER_ACCOUNT_SEARCH);
+  const canExport = can(PERMISSIONS.MONITORING_USER_ACCOUNT_EXPORT);
   const [filter, setFilter] = useState<UserAccountFilter>(initialFilter);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<UserAccountItem[]>([]);
@@ -158,6 +163,7 @@ export default function MonitoringUserAccountPage() {
   );
 
   const handleDownload = () => {
+    if (!canExport) { window.alert("Anda tidak memiliki akses export monitoring user account."); return; }
     downloadCsv(
       `monitoring-user-account-${filter.bprId || "all"}-${filter.role.toLowerCase()}.csv`,
       filteredData
@@ -184,7 +190,7 @@ export default function MonitoringUserAccountPage() {
             Data dibagi menjadi tabel NASABAH dan STAFF agar lebih mudah dipantau.
           </p>
         </div>
-        <Button type="button" onClick={handleDownload} disabled={filteredData.length === 0}>
+        <Button type="button" onClick={handleDownload} disabled={filteredData.length === 0 || !canExport} title={!canExport ? "Anda tidak memiliki akses export." : undefined}>
           <Download className="mr-2 size-4" />
           Download Excel
         </Button>

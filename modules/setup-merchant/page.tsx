@@ -5,6 +5,9 @@ import { Plus, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import PermissionButton from "@/components/auth/PermissionButton";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -31,6 +34,9 @@ export default function SetupMerchantPage() {
   const [selectedItem, setSelectedItem] = useState<MerchantItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { can } = useSession();
+  const canSave = can(PERMISSIONS.SETUP_MERCHANT_SAVE);
+  const canDelete = can(PERMISSIONS.SETUP_MERCHANT_DELETE);
 
   const loadData = async () => {
     try {
@@ -69,16 +75,19 @@ export default function SetupMerchantPage() {
   const totalInactive = data.filter((item) => !item.is_active).length;
 
   const handleCreateClick = () => {
+    if (!canSave) return;
     setSelectedItem(null);
     setSheetOpen(true);
   };
 
   const handleEditClick = (item: MerchantItem) => {
+    if (!canSave) return;
     setSelectedItem(item);
     setSheetOpen(true);
   };
 
   const handleDeleteClick = async (item: MerchantItem) => {
+    if (!canDelete) return;
     const ok = window.confirm(
       `Yakin ingin menonaktifkan merchant ${item.merchant_id} - ${item.nama_merchant}?`
     );
@@ -97,6 +106,7 @@ export default function SetupMerchantPage() {
   };
 
   const handleSubmit = async (values: MerchantFormValues) => {
+    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan merchant."); return; }
     try {
       setSubmitting(true);
 
@@ -140,10 +150,10 @@ export default function SetupMerchantPage() {
 
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
-              <Button onClick={handleCreateClick}>
+              <PermissionButton permission={PERMISSIONS.SETUP_MERCHANT_SAVE} onClick={handleCreateClick}>
                 <Plus className="mr-1 size-4" />
                 Tambah Merchant
-              </Button>
+              </PermissionButton>
             </SheetTrigger>
 
             <SheetContent
@@ -161,6 +171,7 @@ export default function SetupMerchantPage() {
                   mode={selectedItem ? "edit" : "create"}
                   initialData={selectedItem}
                   onSubmit={handleSubmit}
+                  disabled={!canSave || submitting}
                   onCancel={() => {
                     setSheetOpen(false);
                     setSelectedItem(null);
@@ -230,6 +241,8 @@ export default function SetupMerchantPage() {
             data={filteredData}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
+            canSave={canSave}
+            canDelete={canDelete}
           />
         )}
       </div>

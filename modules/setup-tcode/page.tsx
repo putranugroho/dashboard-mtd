@@ -5,6 +5,9 @@ import { Plus, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import PermissionButton from "@/components/auth/PermissionButton";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -26,6 +29,8 @@ export default function SetupTcodePage() {
   const [selectedItem, setSelectedItem] = useState<TcodeItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { can } = useSession();
+  const canSave = can(PERMISSIONS.SETUP_TCODE_SAVE);
 
   const loadData = async () => {
     try {
@@ -61,11 +66,13 @@ export default function SetupTcodePage() {
   const totalInactive = data.filter((item) => !item.is_active).length;
 
   const handleCreateClick = () => {
+    if (!canSave) return;
     setSelectedItem(null);
     setSheetOpen(true);
   };
 
   const handleEditClick = (item: TcodeItem) => {
+    if (!canSave) return;
     setSelectedItem(item);
     setSheetOpen(true);
   };
@@ -87,6 +94,11 @@ export default function SetupTcodePage() {
   };
 
   const handleSubmit = async (values: TcodeFormValues) => {
+    if (!canSave) {
+      window.alert("Anda tidak memiliki akses untuk menyimpan TCode.");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -133,10 +145,10 @@ export default function SetupTcodePage() {
 
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
-              <Button onClick={handleCreateClick}>
+              <PermissionButton permission={PERMISSIONS.SETUP_TCODE_SAVE} onClick={handleCreateClick}>
                 <Plus className="mr-1 size-4" />
                 Tambah TCode
-              </Button>
+              </PermissionButton>
             </SheetTrigger>
 
             <SheetContent
@@ -154,6 +166,7 @@ export default function SetupTcodePage() {
                   mode={selectedItem ? "edit" : "create"}
                   initialData={selectedItem}
                   onSubmit={handleSubmit}
+                  disabled={!canSave || submitting}
                   onCancel={() => {
                     setSheetOpen(false);
                     setSelectedItem(null);
@@ -220,6 +233,7 @@ export default function SetupTcodePage() {
             data={filteredData}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
+            canSave={canSave}
           />
         )}
       </div>

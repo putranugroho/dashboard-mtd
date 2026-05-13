@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 
 import JournalEditor from "./JournalEditor";
 import JournalTcodeList from "./JournalTcodeList";
@@ -18,6 +20,9 @@ export default function SetupJurnalPage() {
   const [selectedDetail, setSelectedDetail] = useState<JournalDetail | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const { can } = useSession();
+  const canSave = can(PERMISSIONS.SETUP_JURNAL_SAVE);
+  const canDelete = can(PERMISSIONS.SETUP_JURNAL_DELETE);
 
   const loadList = async () => {
     try {
@@ -81,6 +86,7 @@ export default function SetupJurnalPage() {
   };
 
   const handleSave = async (detail: JournalDetail) => {
+    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan setup jurnal."); return; }
     try {
       await saveJournalBulk({
         tcode: detail.tcode,
@@ -128,7 +134,7 @@ export default function SetupJurnalPage() {
             Memuat detail jurnal...
           </div>
         ) : (
-          <JournalEditor detail={selectedDetail} onSave={handleSave} />
+          <JournalEditor detail={selectedDetail} onSave={handleSave} canSave={canSave} canDelete={canDelete} />
         )}
       </div>
     </div>

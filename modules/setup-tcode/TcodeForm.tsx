@@ -13,6 +13,7 @@ type Props = {
   initialData?: TcodeItem | null;
   onSubmit: (values: TcodeFormValues) => void;
   onCancel?: () => void;
+  disabled?: boolean;
 };
 
 const initialForm: TcodeFormValues = {
@@ -27,6 +28,7 @@ export default function TcodeForm({
   initialData,
   onSubmit,
   onCancel,
+  disabled = false,
 }: Props) {
   const [form, setForm] = useState<TcodeFormValues>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -81,6 +83,7 @@ export default function TcodeForm({
   };
 
   const handleSubmit = () => {
+    if (disabled) return;
     if (!validate()) return;
     onSubmit({
       tcode: form.tcode.trim(),
@@ -98,7 +101,7 @@ export default function TcodeForm({
           id="tcode"
           placeholder="Contoh: 5000"
           value={form.tcode}
-          disabled={mode === "edit"}
+          disabled={disabled || mode === "edit"}
           readOnly={mode === "edit"}
           onChange={(e) => handleChange("tcode", e.target.value)}
         />
@@ -120,6 +123,7 @@ export default function TcodeForm({
           id="keterangan"
           placeholder="Contoh: PPOB"
           value={form.keterangan}
+          disabled={disabled}
           onChange={(e) => handleChange("keterangan", e.target.value)}
         />
         {errors.keterangan && (
@@ -133,6 +137,7 @@ export default function TcodeForm({
           id="description"
           placeholder="Deskripsi tambahan TCode"
           value={form.description}
+          disabled={disabled}
           onChange={(e) => handleChange("description", e.target.value)}
           className="min-h-[110px]"
         />
@@ -143,6 +148,7 @@ export default function TcodeForm({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            disabled={disabled}
             onClick={() => handleChange("is_active", true)}
             className={`rounded-lg border px-3 py-2 text-sm transition ${
               form.is_active
@@ -155,6 +161,7 @@ export default function TcodeForm({
 
           <button
             type="button"
+            disabled={disabled}
             onClick={() => handleChange("is_active", false)}
             className={`rounded-lg border px-3 py-2 text-sm transition ${
               !form.is_active
@@ -177,7 +184,7 @@ export default function TcodeForm({
             Batal
           </Button>
         )}
-        <Button onClick={handleSubmit}>
+        <Button onClick={handleSubmit} disabled={disabled}>
           {mode === "create" ? "Simpan TCode" : "Update TCode"}
         </Button>
       </div>

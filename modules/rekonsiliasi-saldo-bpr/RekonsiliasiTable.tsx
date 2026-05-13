@@ -7,6 +7,7 @@ type Props = {
   rows: RekonsiliasiRow[];
   loading: boolean;
   onOpenDetail?: (row: RekonsiliasiRow) => void;
+  canDetail?: boolean;
 };
 
 function CellBox({
@@ -46,6 +47,7 @@ export default function RekonsiliasiTable({
   rows,
   loading,
   onOpenDetail,
+  canDetail = true,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -114,11 +116,11 @@ export default function RekonsiliasiTable({
             >
               <button
                 type="button"
-                disabled={row.selisih === 0}
+                disabled={row.selisih === 0 || !canDetail}
                 onClick={() => onOpenDetail?.(row)}
                 className="w-full text-right disabled:cursor-default"
                 title={
-                  row.selisih !== 0
+                  row.selisih !== 0 && canDetail
                     ? "Klik untuk melihat detail selisih transaksi"
                     : "Tidak ada selisih"
                 }

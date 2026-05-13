@@ -10,6 +10,7 @@ type Props = {
   loading?: boolean;
   onChange: (value: string, item?: ListBprItem) => void;
   onSearch: () => void;
+  canSearch?: boolean;
 };
 
 export default function SaldoSearchForm({
@@ -17,6 +18,7 @@ export default function SaldoSearchForm({
   loading = false,
   onChange,
   onSearch,
+  canSearch = true,
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -34,7 +36,7 @@ export default function SaldoSearchForm({
           <div className="w-full md:w-[360px]">
             <BprSelect
               value={bprId}
-              disabled={loading}
+              disabled={loading || !canSearch}
               label="BPR"
               placeholder="Pilih BPR"
               onChange={onChange}
@@ -43,7 +45,8 @@ export default function SaldoSearchForm({
 
           <Button
             onClick={onSearch}
-            disabled={loading || !bprId}
+            disabled={loading || !bprId || !canSearch}
+            title={!canSearch ? "Anda tidak memiliki akses cari saldo MTD." : undefined}
             className="h-11 px-4 md:w-auto"
           >
             <Search className="mr-2 size-4" />

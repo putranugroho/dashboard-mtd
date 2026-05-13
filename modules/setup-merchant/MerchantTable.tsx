@@ -10,9 +10,11 @@ type Props = {
   data: MerchantItem[];
   onEdit: (item: MerchantItem) => void;
   onDelete: (item: MerchantItem) => void;
+  canSave?: boolean;
+  canDelete?: boolean;
 };
 
-export default function MerchantTable({ data, onEdit, onDelete }: Props) {
+export default function MerchantTable({ data, onEdit, onDelete, canSave = true, canDelete = true }: Props) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[840px] border-collapse text-sm">
@@ -62,6 +64,8 @@ export default function MerchantTable({ data, onEdit, onDelete }: Props) {
                       type="button"
                       size="sm"
                       variant="outline"
+                      disabled={!canSave}
+                      title={!canSave ? "Anda tidak memiliki akses ubah merchant." : undefined}
                       onClick={() => onEdit(item)}
                     >
                       <Edit className="size-4" />
@@ -71,7 +75,8 @@ export default function MerchantTable({ data, onEdit, onDelete }: Props) {
                       type="button"
                       size="sm"
                       variant="outline"
-                      disabled={!item.is_active}
+                      disabled={!item.is_active || !canDelete}
+                      title={!canDelete ? "Anda tidak memiliki akses hapus merchant." : undefined}
                       onClick={() => onDelete(item)}
                     >
                       <Trash2 className="size-4 text-red-500" />

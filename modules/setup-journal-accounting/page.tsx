@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 
 import BprSelect from "@/components/shared/BprSelect";
 import {
@@ -41,6 +43,9 @@ export default function SetupJournalAccountingPage() {
   const [coaOptions, setCoaOptions] = useState<AccountingCoaOption[]>([]);
   const [loadingList, setLoadingList] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const { can } = useSession();
+  const canSave = can(PERMISSIONS.SETUP_JOURNAL_ACCOUNTING_SAVE);
+  const canDelete = can(PERMISSIONS.SETUP_JOURNAL_ACCOUNTING_DELETE);
 
   const loadList = async (bprId: string) => {
     try {
@@ -164,6 +169,7 @@ export default function SetupJournalAccountingPage() {
   };
 
   const handleSave = async (detail: JournalAccountingDetail) => {
+    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan journal accounting."); return; }
     if (!activeBprId) {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
@@ -204,6 +210,7 @@ export default function SetupJournalAccountingPage() {
   };
 
   const handleDelete = async (tcode: string) => {
+    if (!canDelete) { window.alert("Anda tidak memiliki akses hapus journal accounting."); return; }
     if (!activeBprId) {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
@@ -288,6 +295,8 @@ export default function SetupJournalAccountingPage() {
           onChange={setSelectedDetail}
           onSave={handleSave}
           onDelete={handleDelete}
+          canSave={canSave}
+          canDelete={canDelete}
         />
       </div>
     </div>

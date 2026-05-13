@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 
 import { getBprDetailWithTcodes } from "@/lib/api/bpr";
 import { checkAllGatewayStatuses } from "@/lib/api/monitoring-gateway";
@@ -31,6 +33,9 @@ function nowString() {
 }
 
 export default function MonitoringGatewayBPRPage() {
+  const { can } = useSession();
+  const canCheck = can(PERMISSIONS.MONITORING_GATEWAY_BPR_CHECK);
+  const canDetail = can(PERMISSIONS.MONITORING_GATEWAY_BPR_DETAIL);
   const [loading, setLoading] = useState(false);
   const [lastChecked, setLastChecked] = useState("");
   const [query, setQuery] = useState("");
@@ -66,8 +71,10 @@ export default function MonitoringGatewayBPRPage() {
   };
 
   useEffect(() => {
-    loadMonitoring();
-  }, []);
+    if (canCheck) {
+      loadMonitoring();
+    }
+  }, [canCheck]);
 
   const summary = useMemo(() => buildGatewaySummary(items), [items]);
 
@@ -82,6 +89,7 @@ export default function MonitoringGatewayBPRPage() {
   );
 
   const handleRefresh = async () => {
+    if (!canCheck) { window.alert("Anda tidak memiliki akses check gateway BPR."); return; }
     await loadMonitoring();
   };
 
@@ -151,6 +159,7 @@ export default function MonitoringGatewayBPRPage() {
         onChangeQuery={setQuery}
         onChangeSortBy={setSortBy}
         onRefresh={handleRefresh}
+        canCheck={canCheck}
       />
 
       <MonitoringGatewaySummary summary={summary} />
@@ -160,6 +169,7 @@ export default function MonitoringGatewayBPRPage() {
         normalItems={normalItems}
         loading={loading}
         onOpenPIC={handleOpenPIC}
+        canDetail={canDetail}
       />
 
       <BprContactDialog

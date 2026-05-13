@@ -4,6 +4,8 @@ import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { PERMISSIONS } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { getSaldoMTD } from "@/lib/api/saldo-mtd";
 import SaldoSearchForm from "./SaldoSearchForm";
 import SaldoSummaryCards from "./SaldoSummaryCard";
@@ -85,6 +87,9 @@ function downloadCsv(filename: string, rows: SaldoMTDItem[]) {
 }
 
 export default function SaldoRekeningMTDPage() {
+  const { can } = useSession();
+  const canSearch = can(PERMISSIONS.SALDO_REKENING_MTD_SEARCH);
+  const canExport = can(PERMISSIONS.SALDO_REKENING_MTD_EXPORT);
   const [bprId, setBprId] = useState("");
   const [searchedBprId, setSearchedBprId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -103,6 +108,7 @@ export default function SaldoRekeningMTDPage() {
   const summary = useMemo(() => buildSummary(data), [data]);
 
   const handleSearch = async () => {
+    if (!canSearch) { window.alert("Anda tidak memiliki akses pencarian saldo MTD."); return; }
     if (!bprId.trim()) {
       window.alert("BPR ID wajib diisi.");
       return;
@@ -128,6 +134,7 @@ export default function SaldoRekeningMTDPage() {
   };
 
   const handleDownload = () => {
+    if (!canExport) { window.alert("Anda tidak memiliki akses export saldo MTD."); return; }
     if (data.length === 0) return;
     downloadCsv(`saldo-rekening-mtd-${searchedBprId || "data"}.csv`, data);
   };
@@ -139,6 +146,7 @@ export default function SaldoRekeningMTDPage() {
         loading={loading}
         onChange={setBprId}
         onSearch={handleSearch}
+        canSearch={canSearch}
       />
 
       {data.length > 0 && (
@@ -153,7 +161,7 @@ export default function SaldoRekeningMTDPage() {
               </p>
             </div>
 
-            <Button onClick={handleDownload}>
+            <Button onClick={handleDownload} disabled={!canExport} title={!canExport ? "Anda tidak memiliki akses export." : undefined}>
               <Download className="mr-2 size-4" />
               Download Excel
             </Button>

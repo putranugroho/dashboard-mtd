@@ -9,9 +9,10 @@ type Props = {
   data: BprTcodeItem[];
   onToggle: (tcodeId: number) => void;
   onSave: () => void;
+  canRelasi?: boolean;
 };
 
-export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
+export default function BprTcodeMapping({ data, onToggle, onSave, canRelasi = true }: Props) {
   const linkedCount = data.filter((item) => item.is_linked).length;
   const unlinkedCount = data.filter((item) => !item.is_linked).length;
   const journalCount = data.filter((item) => item.journal).length;
@@ -29,7 +30,7 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
           </p>
         </div>
 
-        <Button onClick={onSave}>Simpan Relasi TCode</Button>
+        <Button onClick={onSave} disabled={!canRelasi} title={!canRelasi ? "Anda tidak memiliki akses relasi TCode." : undefined}>Simpan Relasi TCode</Button>
       </div>
 
       <div className="mb-5 grid gap-3 md:grid-cols-4">
@@ -71,7 +72,7 @@ export default function BprTcodeMapping({ data, onToggle, onSave }: Props) {
         MTD.
       </div>
 
-      <BprTcodeTable data={data} onToggle={onToggle} />
+      <BprTcodeTable data={data} onToggle={onToggle} canRelasi={canRelasi} />
     </div>
   );
 }

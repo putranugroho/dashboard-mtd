@@ -6,9 +6,10 @@ import { BprTcodeItem } from "./types";
 type Props = {
   data: BprTcodeItem[];
   onToggle: (tcodeId: number) => void;
+  canRelasi?: boolean;
 };
 
-export default function BprTcodeTable({ data, onToggle }: Props) {
+export default function BprTcodeTable({ data, onToggle, canRelasi = true }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border bg-white">
       <table className="w-full border-collapse">
@@ -47,7 +48,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
             </tr>
           ) : (
             data.map((item) => {
-              const disableToggle = !item.journal && !item.is_linked;
+              const disableToggle = !canRelasi || (!item.journal && !item.is_linked);
 
               return (
                 <tr key={item.id} className="border-b last:border-b-0">
@@ -60,7 +61,7 @@ export default function BprTcodeTable({ data, onToggle }: Props) {
                       className="size-4 rounded border-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
                       title={
                         disableToggle
-                          ? "Relasi hanya dapat diaktifkan jika setup journal di dashboard MTD sudah dibuat"
+                          ? (!canRelasi ? "Anda tidak memiliki akses relasi TCode." : "Relasi hanya dapat diaktifkan jika setup journal di dashboard MTD sudah dibuat")
                           : "Toggle relasi TCode"
                       }
                     />
