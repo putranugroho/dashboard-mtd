@@ -171,7 +171,7 @@ export default function Sidebar() {
       <div className="shrink-0">
         <div className="flex items-center justify-center px-3 py-3 lg:px-4 lg:py-4">
           <Image
-            src="/logo-susan.png"
+            src="/Logo-mtd.png"
             alt="SUSAN"
             width={160}
             height={40}
