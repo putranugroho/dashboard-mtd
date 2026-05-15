@@ -14,6 +14,20 @@ type ApiResponse<T> = {
   data?: T;
 };
 
+const DEFAULT_USERLOGIN = process.env.NEXT_PUBLIC_DEFAULT_USERLOGIN || "admin";
+
+export type SaldoMTDSourceItem = {
+  source_type: "REK" | "GL";
+  source_code: string;
+  source_name: string;
+  no_rek: string;
+  jns_rek: string;
+  nama: string;
+  saldoakhir: string;
+  saldoeff: string;
+  status_rek: string;
+};
+
 function normalizeList<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
 
@@ -39,11 +53,30 @@ function normalizeSaldoMTDItem(item: SaldoMTDResponseItem): SaldoMTDItem {
   };
 }
 
-export async function getSaldoMTD(bprId: string): Promise<SaldoMTDItem[]> {
+function normalizeSource(item: SaldoMTDItem): SaldoMTDSourceItem {
+  const jnsRek = String(item.jns_rek || "").trim();
+
+  return {
+    source_type: jnsRek === "1" ? "GL" : "REK",
+    source_code: String(item.no_rek || "").trim(),
+    source_name: String(item.nama || "").trim(),
+    no_rek: String(item.no_rek || "").trim(),
+    jns_rek: jnsRek,
+    nama: String(item.nama || "").trim(),
+    saldoakhir: String(item.saldoakhir ?? "0"),
+    saldoeff: String(item.saldoeff ?? "0"),
+    status_rek: String(item.status_rek || "").trim(),
+  };
+}
+
+async function fetchSaldoMTD(
+  bprId: string,
+  userlogin = DEFAULT_USERLOGIN
+): Promise<SaldoMTDItem[]> {
   const res = await postJson<ApiResponse<unknown> | SaldoMTDResponseItem[]>(
     "/saldomtd",
     {
-      userlogin: getCurrentUserLogin(),
+      userlogin: userlogin || getCurrentUserLogin() || DEFAULT_USERLOGIN,
       bpr_id: bprId,
       term: "WEB",
     }
@@ -54,6 +87,21 @@ export async function getSaldoMTD(bprId: string): Promise<SaldoMTDItem[]> {
   );
 
   return rawData.map(normalizeSaldoMTDItem);
+}
+
+export async function getSaldoMTD(
+  bprId: string,
+  userlogin = getCurrentUserLogin()
+): Promise<SaldoMTDItem[]> {
+  return fetchSaldoMTD(bprId, userlogin || DEFAULT_USERLOGIN);
+}
+
+export async function getSaldoMTDSources(
+  bprId: string,
+  userlogin = DEFAULT_USERLOGIN
+): Promise<SaldoMTDSourceItem[]> {
+  const data = await fetchSaldoMTD(bprId, userlogin);
+  return data.map(normalizeSource);
 }
 
 export async function getSaldoMTDMonitoringSummary(params?: {
