@@ -74,9 +74,6 @@ export const PERMISSIONS = {
   MONITORING_AKUN_IBPR_VIEW: "monitoring_akun_ibpr.view",
   MONITORING_AKUN_IBPR_SEARCH: "monitoring_akun_ibpr.search",
   MONITORING_AKUN_IBPR_EXPORT: "monitoring_akun_ibpr.export",
-
-  SIGNIN_SIGNOFF_VIEW: "signin_signoff.view",
-  SIGNIN_SIGNOFF_SIGN: "signin_signoff.sign",
 } as const;
 
 export type PermissionCode = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

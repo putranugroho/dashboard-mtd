@@ -20,11 +20,11 @@ type SidebarItem = {
 
 const menu: SidebarItem[] = [
   {
-    title: "Setup",
+    title: "DASHBOARD",
     icon: Settings,
     children: [
       {
-        title: "Setup",
+        title: "SETUP",
         children: [
           { title: "Setup TCode", href: "/setup/setup-tcode", permission: PERMISSIONS.SETUP_TCODE_VIEW },
           { title: "Setup Jurnal", href: "/setup/setup-jurnal", permission: PERMISSIONS.SETUP_JURNAL_VIEW },
@@ -32,19 +32,19 @@ const menu: SidebarItem[] = [
           { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi", permission: PERMISSIONS.SETUP_RELASI_REKONSILIASI_VIEW },
           { title: "Setup Journal Accounting", href: "/setup/setup-journal-accounting", permission: PERMISSIONS.SETUP_JOURNAL_ACCOUNTING_VIEW },
           { title: "Setup Fee", href: "/setup/setup-fee", permission: PERMISSIONS.SETUP_FEE_VIEW },
-        ],
-      },
-      {
-        title: "Master",
-        children: [
-          { title: "Data BPR", href: "/setup/data-bpr", permission: PERMISSIONS.DATA_BPR_VIEW },
-          { title: "Setup User", href: "/setup/setup-user", permission: PERMISSIONS.SETUP_USER_VIEW },
-          { title: "Setup Banner", href: "/setup/setup-banner", permission: PERMISSIONS.SETUP_BANNER_VIEW },
           { title: "Setup Master Menu", href: "/setup/setup-master-menu", permission: PERMISSIONS.SETUP_MASTER_MENU_VIEW },
         ],
       },
       {
-        title: "Monitoring",
+        title: "MASTER",
+        children: [
+          { title: "Data BPR", href: "/setup/data-bpr", permission: PERMISSIONS.DATA_BPR_VIEW },
+          { title: "Setup User", href: "/setup/setup-user", permission: PERMISSIONS.SETUP_USER_VIEW },
+          { title: "Setup Banner", href: "/setup/setup-banner", permission: PERMISSIONS.SETUP_BANNER_VIEW },
+        ],
+      },
+      {
+        title: "MONITORING",
         children: [
           { title: "Saldo Rekening MTD", href: "/monitoring/saldo-rekening-mtd", permission: PERMISSIONS.SALDO_REKENING_MTD_VIEW },
           { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr", permission: PERMISSIONS.REKONSILIASI_SALDO_BPR_VIEW },
@@ -53,7 +53,7 @@ const menu: SidebarItem[] = [
         ],
       },
       {
-        title: "Laporan",
+        title: "LAPORAN",
         children: [
           { title: "User Akun IBPR", href: "/monitoring/monitoring-akun-ibpr", permission: PERMISSIONS.MONITORING_AKUN_IBPR_VIEW },
           { title: "User Akun Medfo", href: "/monitoring/monitoring-user-account", permission: PERMISSIONS.MONITORING_USER_ACCOUNT_VIEW },
@@ -179,15 +179,15 @@ export default function Sidebar() {
   return (
     <aside className="hidden h-full w-[210px] shrink-0 flex-col overflow-hidden border-r bg-white md:flex lg:w-64">
       <div className="shrink-0">
-        <div className="flex items-center justify-center px-3 pt-3 pb-2 lg:px-4 lg:pt-4 lg:pb-2">
-          <div className="h-[68px] w-[180px] overflow-hidden">
+        <div className="flex items-center justify-center px-3 pt-3 pb-1 lg:px-4 lg:pt-4 lg:pb-1">
+          <div className="h-[60px] w-[150px] overflow-hidden">
             <Image
               src="/Logo-mtd.png"
               alt="MTD"
               width={260}
               height={260}
               priority
-              className="-mt-[44px] h-auto w-[180px] max-w-none object-contain"
+              className="-mt-[55px] h-auto w-[150px] max-w-none object-contain"
             />
           </div>
         </div>
