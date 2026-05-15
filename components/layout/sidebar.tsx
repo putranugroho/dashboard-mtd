@@ -174,15 +174,17 @@ export default function Sidebar() {
   return (
     <aside className="hidden h-full w-[210px] shrink-0 flex-col overflow-hidden border-r bg-white md:flex lg:w-64">
       <div className="shrink-0">
-        <div className="flex items-center justify-center px-3 py-3 lg:px-4 lg:py-4">
-          <Image
-            src="/Logo-mtd.png"
-            alt="SUSAN"
-            width={160}
-            height={40}
-            priority
-            className="h-auto max-h-12 w-auto object-contain lg:max-h-16"
-          />
+        <div className="flex items-center justify-center px-3 pt-3 pb-1 lg:px-4 lg:pt-4 lg:pb-1">
+          <div className="h-[42px] w-[150px] overflow-hidden lg:h-[48px] lg:w-[170px]">
+            <Image
+              src="/Logo-mtd.png"
+              alt="MTD"
+              width={260}
+              height={260}
+              priority
+              className="-mt-[26px] h-auto w-[150px] max-w-none object-contain lg:-mt-[30px] lg:w-[170px]"
+            />
+          </div>
         </div>
 
         <div className="mx-3 mb-3 flex items-center gap-2 rounded-xl bg-gray-50 p-2 lg:mx-4 lg:mb-4 lg:gap-3 lg:p-3">
