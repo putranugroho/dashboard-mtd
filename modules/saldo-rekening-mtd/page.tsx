@@ -50,6 +50,18 @@ function toNumber(value: unknown) {
   return Number.isNaN(num) ? 0 : num;
 }
 
+function parseCurrencyInput(value: string) {
+  const cleaned = value.replace(/[^\d]/g, "");
+  const num = Number(cleaned || 0);
+  return Number.isNaN(num) ? 0 : num;
+}
+
+function formatCurrencyInput(value: string) {
+  const num = parseCurrencyInput(value);
+  if (num <= 0) return "";
+  return new Intl.NumberFormat("id-ID").format(num);
+}
+
 function buildGlobalSummary(
   data: SaldoMTDMonitoringSummaryItem[]
 ): SaldoMTDMonitoringGlobalSummary {
@@ -199,10 +211,20 @@ export default function SaldoRekeningMTDPage() {
   const [keyword, setKeyword] = useState("");
   const [sortBy, setSortBy] = useState("nama_bpr");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [minSaldoInput, setMinSaldoInput] = useState("");
+  const [appliedMinSaldo, setAppliedMinSaldo] = useState(0);
 
   const [summaryData, setSummaryData] = useState<
     SaldoMTDMonitoringSummaryItem[]
   >([]);
+
+  const filteredSummaryData = useMemo(() => {
+  if (appliedMinSaldo <= 0) return summaryData;
+
+  return summaryData.filter(
+    (item) => Number(item.total_all || 0) >= appliedMinSaldo
+  );
+}, [summaryData, appliedMinSaldo]);
 
   const [selectedBpr, setSelectedBpr] =
     useState<SaldoMTDMonitoringSummaryItem | null>(null);
@@ -217,8 +239,8 @@ export default function SaldoRekeningMTDPage() {
   );
 
   const globalSummary = useMemo(
-    () => buildGlobalSummary(summaryData),
-    [summaryData]
+    () => buildGlobalSummary(filteredSummaryData),
+    [filteredSummaryData]
   );
 
   const rekeningDetail = useMemo(
@@ -403,7 +425,39 @@ export default function SaldoRekeningMTDPage() {
   }, []);
 
   const handleSearchSummary = () => {
+    setAppliedMinSaldo(parseCurrencyInput(minSaldoInput));
     void loadSummary();
+  };
+
+  const handleResetSummaryFilter = async () => {
+    setKeyword("");
+    setMinSaldoInput("");
+    setAppliedMinSaldo(0);
+    setSortBy("nama_bpr");
+    setSortDir("asc");
+
+    try {
+      setLoadingSummary(true);
+
+      const result = await getSaldoMTDMonitoringSummary({
+        keyword: "",
+        sort_by: "nama_bpr",
+        sort_dir: "asc",
+        limit: 1000,
+        offset: 0,
+      });
+
+      setSummaryData(result);
+    } catch (error) {
+      console.error(error);
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Gagal reset filter summary saldo MTD."
+      );
+    } finally {
+      setLoadingSummary(false);
+    }
   };
 
   const handleRefreshSummary = () => {
@@ -537,14 +591,6 @@ export default function SaldoRekeningMTDPage() {
           formatDateTime={formatDateTime}
         />
 
-        {showLogs ? (
-          <MonitoringSyncLogTable
-            data={syncLogs}
-            loading={loadingLogs}
-            formatDateTime={formatDateTime}
-          />
-        ) : null}
-
         {(detailJenis === "ALL" || detailJenis === "REKENING") && (
           <MonitoringDetailTable
             title="Daftar Rekening"
@@ -610,8 +656,8 @@ export default function SaldoRekeningMTDPage() {
             </Button>
 
             <Button
-              disabled={!canExport || summaryData.length === 0}
-              onClick={() => downloadSummaryCsv(summaryData)}
+              disabled={!canExport || filteredSummaryData.length === 0}
+              onClick={() => downloadSummaryCsv(filteredSummaryData)}
               title={!canExport ? "Anda tidak memiliki akses export." : undefined}
             >
               <Download className="mr-2 size-4" />
@@ -620,7 +666,7 @@ export default function SaldoRekeningMTDPage() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_180px_160px_auto] lg:items-end">
+        <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_180px_160px_220px_auto_auto] xl:items-end">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Cari ID / Nama BPR
@@ -668,9 +714,39 @@ export default function SaldoRekeningMTDPage() {
             </select>
           </div>
 
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Minimal Total Saldo
+            </label>
+            <input
+              value={minSaldoInput}
+              onChange={(event) => {
+                const formatted = formatCurrencyInput(event.target.value);
+                setMinSaldoInput(formatted);
+              }}
+              placeholder="contoh: 1.000.000"
+              inputMode="numeric"
+              className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-gray-600"
+            />
+            {appliedMinSaldo > 0 ? (
+              <p className="mt-1 text-xs text-gray-500">
+                Filter aktif: ≥ {formatCurrency(appliedMinSaldo)}
+              </p>
+            ) : null}
+          </div>
+
           <Button onClick={handleSearchSummary} disabled={loadingSummary}>
             <Search className="mr-2 size-4" />
             Cari
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void handleResetSummaryFilter()}
+            disabled={loadingSummary}
+          >
+            Reset
           </Button>
         </div>
       </div>
@@ -681,8 +757,16 @@ export default function SaldoRekeningMTDPage() {
         formatDateTime={formatDateTime}
       />
 
+      {showLogs ? (
+        <MonitoringSyncLogTable
+          data={syncLogs}
+          loading={loadingLogs}
+          formatDateTime={formatDateTime}
+        />
+      ) : null}
+
       <MonitoringSummaryTable
-        data={summaryData}
+        data={filteredSummaryData}
         loading={loadingSummary}
         canDetail={canDetail}
         canRefreshBpr={canRefreshBpr}

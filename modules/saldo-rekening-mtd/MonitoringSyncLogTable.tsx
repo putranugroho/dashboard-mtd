@@ -34,9 +34,9 @@ export default function MonitoringSyncLogTable({
       </div>
 
       <div className="overflow-hidden rounded-xl border">
-        <div className="overflow-x-auto">
+        <div className="max-h-[360px] overflow-auto">
           <table className="w-full min-w-[1100px] border-collapse text-sm">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="sticky top-0 z-10 bg-gray-50 text-xs uppercase text-gray-500 shadow-sm">
               <tr>
                 <th className="px-4 py-3 text-left">Waktu</th>
                 <th className="px-4 py-3 text-left">BPR</th>
