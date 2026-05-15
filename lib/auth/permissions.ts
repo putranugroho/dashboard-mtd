@@ -48,7 +48,10 @@ export const PERMISSIONS = {
 
   SALDO_REKENING_MTD_VIEW: "saldo_rekening_mtd.view",
   SALDO_REKENING_MTD_SEARCH: "saldo_rekening_mtd.search",
+  SALDO_REKENING_MTD_DETAIL: "saldo_rekening_mtd.detail",
   SALDO_REKENING_MTD_EXPORT: "saldo_rekening_mtd.export",
+  SALDO_REKENING_MTD_REFRESH_BPR: "saldo_rekening_mtd.refresh_bpr",
+  SALDO_REKENING_MTD_REFRESH_ALL: "saldo_rekening_mtd.refresh_all",
 
   REKONSILIASI_SALDO_BPR_VIEW: "rekonsiliasi_saldo_bpr.view",
   REKONSILIASI_SALDO_BPR_SEARCH: "rekonsiliasi_saldo_bpr.search",
