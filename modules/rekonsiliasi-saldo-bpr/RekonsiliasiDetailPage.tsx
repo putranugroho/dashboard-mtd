@@ -282,78 +282,6 @@ function TransactionTable({
   );
 }
 
-function NominalMismatchTable({
-  rows,
-}: {
-  rows: RekonTransactionDiffResult["nominalMismatch"];
-}) {
-  return (
-    <div className="rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Nominal Berbeda
-          </h3>
-          <p className="text-sm text-gray-500">
-            Transaksi ditemukan di Core Banking dan Accounting, tetapi nominalnya berbeda.
-          </p>
-        </div>
-
-        <span className="inline-flex w-fit rounded-lg border border-red-500 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">
-          Nominal Berbeda: {rows.length}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-[120px_170px_170px_1fr_150px_150px_150px] gap-2 text-sm font-semibold text-gray-600">
-        <div>Tgl Trans</div>
-        <div>No Dok</div>
-        <div>RRN</div>
-        <div>Keterangan</div>
-        <div className="text-right">Nominal Core</div>
-        <div className="text-right">Nominal Acct</div>
-        <div className="text-right">Selisih</div>
-      </div>
-
-      <div className="mt-2 space-y-2">
-        {rows.length === 0 ? (
-          <div className="rounded-xl border border-dashed p-6 text-center text-sm text-gray-500">
-            Tidak ada transaksi dengan nominal berbeda.
-          </div>
-        ) : (
-          rows.map((item, index) => (
-            <div
-              key={`${item.no_dok}-${item.rrn}-${index}`}
-              className="grid grid-cols-[120px_170px_170px_1fr_150px_150px_150px] gap-2 rounded-lg border bg-red-50 p-3 text-sm"
-            >
-              <div>{item.tgl_trans || "-"}</div>
-              <div className="break-all">{item.no_dok || "-"}</div>
-              <div className="break-all">{item.rrn || "-"}</div>
-              <div>
-                <p>{item.keterangan_core || "-"}</p>
-                {item.keterangan_accounting &&
-                item.keterangan_accounting !== item.keterangan_core ? (
-                  <p className="mt-1 text-xs text-gray-500">
-                    Acct: {item.keterangan_accounting}
-                  </p>
-                ) : null}
-              </div>
-              <div className="text-right font-semibold">
-                {formatCurrency(item.nominal_core)}
-              </div>
-              <div className="text-right font-semibold">
-                {formatCurrency(item.nominal_accounting)}
-              </div>
-              <div className="text-right font-semibold text-red-700">
-                {formatCurrency(item.selisih_nominal)}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function RekonsiliasiDetailPage({ row, bprId, onBack }: Props) {
   const [dateFrom, setDateFrom] = useState(getToday());
   const [dateTo, setDateTo] = useState(getToday());
@@ -522,8 +450,6 @@ export default function RekonsiliasiDetailPage({ row, bprId, onBack }: Props) {
             badge="Tidak Ada di Core"
             rows={result.missingInCore}
           />
-
-          <NominalMismatchTable rows={result.nominalMismatch} />
         </>
       ) : (
         <div className="rounded-2xl border border-dashed bg-white p-8 text-center text-sm text-gray-500">
