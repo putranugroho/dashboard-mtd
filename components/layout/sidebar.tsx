@@ -45,8 +45,13 @@ const menu: SidebarItem[] = [
           { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr", permission: PERMISSIONS.REKONSILIASI_SALDO_BPR_VIEW },
           { title: "Rekonsiliasi Saldo MTN", href: "/", permission: PERMISSIONS.REKONSILIASI_SALDO_MTN_VIEW },
           { title: "Monitoring Gateway BPR", href: "/monitoring/monitoring-gateway-bpr", permission: PERMISSIONS.MONITORING_GATEWAY_BPR_VIEW },
-          { title: "Monitoring User Account", href: "/monitoring/monitoring-user-account", permission: PERMISSIONS.MONITORING_USER_ACCOUNT_VIEW },
-          { title: "Monitoring Akun IBPR", href: "/monitoring/monitoring-akun-ibpr", permission: PERMISSIONS.MONITORING_AKUN_IBPR_VIEW },
+        ],
+      },
+      {
+        title: "Laporan",
+        children: [
+          { title: "User Akun IBPR", href: "/monitoring/monitoring-akun-ibpr", permission: PERMISSIONS.MONITORING_AKUN_IBPR_VIEW },
+          { title: "User Akun Medfo", href: "/monitoring/monitoring-user-account", permission: PERMISSIONS.MONITORING_USER_ACCOUNT_VIEW },
         ],
       },
     ],

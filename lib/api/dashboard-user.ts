@@ -8,8 +8,15 @@ export type DashboardUser = {
   email?: string;
   phone?: string;
   role_name?: string;
+
   is_super_admin?: boolean;
   is_active?: boolean;
+
+  failed_login_count?: number;
+  is_locked?: boolean;
+  locked_at?: string | null;
+  locked_reason?: string | null;
+
   created_at?: string;
   updated_at?: string;
 };
@@ -34,19 +41,28 @@ type ApiResponse<T> = {
 
 function normalizeList<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
-  if (payload && typeof payload === "object" && Array.isArray((payload as { data?: unknown }).data)) {
+
+  if (
+    payload &&
+    typeof payload === "object" &&
+    Array.isArray((payload as { data?: unknown }).data)
+  ) {
     return (payload as { data: T[] }).data;
   }
+
   return [];
 }
 
 export async function getDashboardUsers() {
-  const res = await postJson<ApiResponse<unknown>>("/dashboard_user", {
-    action: "list",
-    userlogin: getCurrentUserLogin(),
-  });
+  const res = await postJson<ApiResponse<unknown> | DashboardUser[]>(
+    "/dashboard_user",
+    {
+      action: "list",
+      userlogin: getCurrentUserLogin(),
+    }
+  );
 
-  return normalizeList<DashboardUser>(res.data);
+  return normalizeList<DashboardUser>(Array.isArray(res) ? res : res.data);
 }
 
 export async function createDashboardUser(payload: DashboardUserFormValues) {
@@ -79,6 +95,14 @@ export async function resetDashboardUserPassword(id: number, password: string) {
     action: "reset_password",
     id,
     password,
+    userlogin: getCurrentUserLogin(),
+  });
+}
+
+export async function unlockDashboardUser(id: number) {
+  return postJson<ApiResponse<{ id: number }>>("/dashboard_user", {
+    action: "unlock",
+    id,
     userlogin: getCurrentUserLogin(),
   });
 }

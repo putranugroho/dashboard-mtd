@@ -29,6 +29,7 @@ export const PERMISSIONS = {
   SETUP_USER_SAVE: "setup_user.save",
   SETUP_USER_DELETE: "setup_user.delete",
   SETUP_USER_RESET_PASSWORD: "setup_user.reset_password",
+  SETUP_USER_UNLOCK: "setup_user.unlock",
   SETUP_USER_MANAGE_ACCESS: "setup_user.manage_access",
 
   SETUP_BANNER_VIEW: "setup_banner.view",
