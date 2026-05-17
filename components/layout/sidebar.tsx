@@ -50,6 +50,7 @@ const menu: SidebarItem[] = [
           { title: "Rekonsiliasi Saldo BPR", href: "/monitoring/rekonsiliasi-saldo-bpr", permission: PERMISSIONS.REKONSILIASI_SALDO_BPR_VIEW },
           { title: "Rekonsiliasi Saldo MTN", href: "/", permission: PERMISSIONS.REKONSILIASI_SALDO_MTN_VIEW },
           { title: "Gateway BPR", href: "/monitoring/monitoring-gateway-bpr", permission: PERMISSIONS.MONITORING_GATEWAY_BPR_VIEW },
+          { title: "Log Transaksi", href: "/monitoring/log-transaksi", permission: PERMISSIONS.LOG_TRANSAKSI_VIEW },
         ],
       },
       {

@@ -74,6 +74,11 @@ export const PERMISSIONS = {
   MONITORING_AKUN_IBPR_VIEW: "monitoring_akun_ibpr.view",
   MONITORING_AKUN_IBPR_SEARCH: "monitoring_akun_ibpr.search",
   MONITORING_AKUN_IBPR_EXPORT: "monitoring_akun_ibpr.export",
+
+  LOG_TRANSAKSI_VIEW: "log_transaksi.view",
+  LOG_TRANSAKSI_DETAIL: "log_transaksi.detail",
+  LOG_TRANSAKSI_EXPORT: "log_transaksi.export",
+  LOG_TRANSAKSI_SYNC_GATEWAY: "log_transaksi.sync_gateway",
 } as const;
 
 export type PermissionCode = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
