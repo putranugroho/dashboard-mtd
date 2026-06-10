@@ -13,6 +13,7 @@ import {
 import BprSelect from "@/components/shared/BprSelect";
 import {
   deleteAccountingJournal,
+  getAccountingJournalCountsByPaymentGateway,
   getAccountingJournalDetail,
   getAccountingJournalTcodes,
   getAccountingSubtree,
@@ -61,17 +62,30 @@ export default function SetupJournalAccountingPage() {
   const loadList = async (bprId: string) => {
     try {
       setLoadingList(true);
-      const result = await getAccountingJournalTcodes(bprId);
+
+      const rawResult = await getAccountingJournalTcodes(bprId);
+      const result = await applyPgCountsToList(
+        bprId,
+        selectedPaymentGatewayCode,
+        rawResult
+      );
+
       setTcodeList(result);
 
       if (result.length > 0) {
-        setSelectedTcode(result[0].tcode);
-        setSelectedSummary(result[0]);
-      } else {
-        setSelectedTcode(null);
-        setSelectedSummary(null);
-        setSelectedDetail(null);
+        setSelectedTcode((prev) => prev || result[0].tcode);
+
+        const selected =
+          result.find((item) => item.tcode === selectedTcode) || result[0];
+
+        setSelectedSummary(selected);
+        return result;
       }
+
+      setSelectedTcode(null);
+      setSelectedSummary(null);
+      setSelectedDetail(null);
+      return [];
     } catch (error) {
       console.error(error);
       setTcodeList([]);
@@ -83,10 +97,17 @@ export default function SetupJournalAccountingPage() {
           ? error.message
           : "Gagal memuat daftar setup journal accounting"
       );
+      return [];
     } finally {
       setLoadingList(false);
     }
   };
+
+  useEffect(() => {
+    if (!activeBprId || !selectedPaymentGatewayCode) return;
+
+    loadList(activeBprId);
+  }, [selectedPaymentGatewayCode]);
 
   const loadCoa = async () => {
     try {
@@ -209,11 +230,16 @@ export default function SetupJournalAccountingPage() {
   };
 
   const handleSave = async (detail: JournalAccountingDetail) => {
-    if (!canSave) { window.alert("Anda tidak memiliki akses menyimpan journal accounting."); return; }
+    if (!canSave) {
+      window.alert("Anda tidak memiliki akses menyimpan journal accounting.");
+      return;
+    }
+
     if (!activeBprId) {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
+
     if (!selectedPaymentGatewayCode) {
       window.alert("Silakan pilih payment gateway terlebih dahulu.");
       return;
@@ -228,21 +254,18 @@ export default function SetupJournalAccountingPage() {
         term: DEFAULT_TERM,
         paymentGatewayCode: selectedPaymentGatewayCode,
         journals: detail.journals,
-        isExistingSetup: detail.journals.length > 0,
+        isExistingSetup: true,
       });
 
-      await loadList(activeBprId);
-
+      const latestList = await loadList(activeBprId);
       const refreshed =
-        tcodeList.find((item) => item.tcode === detail.tcode) || selectedSummary;
+        latestList.find((item) => item.tcode === detail.tcode) ||
+        selectedSummary;
 
       if (refreshed) {
         await loadDetail(
           activeBprId,
-          {
-            ...refreshed,
-            accounting_ready: true,
-          },
+          refreshed,
           selectedPaymentGatewayCode
         );
       }
@@ -259,11 +282,16 @@ export default function SetupJournalAccountingPage() {
   };
 
   const handleDelete = async (tcode: string) => {
-    if (!canDelete) { window.alert("Anda tidak memiliki akses hapus journal accounting."); return; }
+    if (!canDelete) {
+      window.alert("Anda tidak memiliki akses hapus journal accounting.");
+      return;
+    }
+
     if (!activeBprId) {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
+
     if (!selectedPaymentGatewayCode) {
       window.alert("Silakan pilih payment gateway terlebih dahulu.");
       return;
@@ -279,10 +307,10 @@ export default function SetupJournalAccountingPage() {
         paymentGatewayCode: selectedPaymentGatewayCode,
       });
 
-      await loadList(activeBprId);
-
+      const latestList = await loadList(activeBprId);
       const refreshed =
-        tcodeList.find((item) => item.tcode === tcode) || selectedSummary;
+        latestList.find((item) => item.tcode === tcode) ||
+        selectedSummary;
 
       if (refreshed) {
         await loadDetail(
@@ -309,6 +337,35 @@ export default function SetupJournalAccountingPage() {
     }
   };
 
+  const applyPgCountsToList = async (
+    bprId: string,
+    paymentGatewayCode: string,
+    sourceList: JournalAccountingTcodeSummary[]
+  ) => {
+    if (!bprId || !paymentGatewayCode || sourceList.length === 0) {
+      return sourceList;
+    }
+
+    const countMap = await getAccountingJournalCountsByPaymentGateway({
+      bprId,
+      userlogin: DEFAULT_USERLOGIN,
+      term: DEFAULT_TERM,
+      paymentGatewayCode,
+      tcodes: sourceList,
+    });
+
+    return sourceList.map((item) => {
+      const count = countMap[item.tcode] ?? 0;
+
+      return {
+        ...item,
+        accounting_journal_count: count,
+        accounting_ready: count > 0,
+        journal_ready: count > 0,
+      };
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -320,21 +377,23 @@ export default function SetupJournalAccountingPage() {
           Sub Buku Besar.
         </p>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-[360px_280px_1fr] md:items-end">
-          <BprSelect
-            value={activeBprId}
-            label="BPR"
-            placeholder="Pilih BPR"
-            disabled={loadingList || loadingDetail}
-            onChange={handleSelectBpr}
-          />
+        <div className="mt-5 grid gap-4 md:grid-cols-[360px_360px_1fr] md:items-end">
+          <div className="space-y-2">
+            <BprSelect
+              value={activeBprId}
+              label="BPR"
+              placeholder="Pilih BPR"
+              disabled={loadingList || loadingDetail}
+              onChange={handleSelectBpr}
+            />
+          </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
               Payment Gateway
             </label>
 
-            <Select
+            <select
               value={selectedPaymentGatewayCode}
               disabled={
                 loadingPaymentGateway ||
@@ -342,23 +401,22 @@ export default function SetupJournalAccountingPage() {
                 loadingDetail ||
                 paymentGateways.length === 0
               }
-              onValueChange={(value) => {
-                setSelectedPaymentGatewayCode(value);
+              onChange={(event) => {
+                setSelectedPaymentGatewayCode(event.target.value);
                 setSelectedDetail(null);
               }}
+              className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-900/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
             >
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="Pilih payment gateway" />
-              </SelectTrigger>
+              {paymentGateways.length === 0 ? (
+                <option value="">Tidak ada payment gateway</option>
+              ) : null}
 
-              <SelectContent>
-                {paymentGateways.map((item) => (
-                  <SelectItem key={item.kode} value={item.kode}>
-                    {item.nama} ({item.kode})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {paymentGateways.map((item) => (
+                <option key={item.kode} value={item.kode}>
+                  {item.nama} ({item.kode})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

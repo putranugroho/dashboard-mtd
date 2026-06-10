@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import AccountingJournalRowForm from "./AccountingJournalRowForm";
+import { createEmptyJournalItem } from "./journal-factory";
 import { validateAccountingJournalDetail } from "./validator";
 import {
   AccountingCoaOption,
@@ -115,7 +116,11 @@ export default function AccountingJournalEditor({
     const nextNo = normalizedDetail.journals.length + 1;
     updateDetail({
       ...normalizedDetail,
-      journals: [...normalizedDetail.journals],
+      journals: [...normalizedDetail.journals,
+      createEmptyJournalItem(
+        nextNo,
+        normalizedDetail.payment_gateway_code
+      ),],
     });
   };
 

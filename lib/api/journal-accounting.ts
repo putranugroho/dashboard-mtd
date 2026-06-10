@@ -7,6 +7,7 @@ import {
   JournalAccountingTcodeSummary,
   MasterPaymentGatewayItem,
 } from "@/modules/setup-journal-accounting/types";
+import { createEmptyAccountingJournalDetail } from "@/modules/setup-journal-accounting/journal-factory";
 
 type ApiResponse<T> = {
   code: string;
@@ -46,56 +47,48 @@ type DeleteParams = {
   paymentGatewayCode: string;
 };
 
-const createEmptyAccountingJournalItem = (
-  journalNo = 1
-): JournalAccountingItem => ({
-  journal_no: journalNo,
-  status_journal: true,
-  keterangan_journal: "",
-  payment_gateway_code: "",
+type CountByPgParams = {
+  bprId: string;
+  userlogin: string;
+  term: string;
+  paymentGatewayCode: string;
+  tcodes: JournalAccountingTcodeSummary[];
+};
 
-  debit_source_type: "NASABAH",
-  debit_gol_acc: "",
-  debit_nobb: "",
-  debit_nama_bb: "",
-  debit_nosbb: "",
-  debit_nama_sbb: "",
-  debit_type_posting: "",
-  debit_akun_perantara: "N",
-  debit_hutang: "N",
-  debit_piutang: "N",
+export async function getAccountingJournalCountsByPaymentGateway(
+  params: CountByPgParams
+): Promise<Record<string, number>> {
+  const entries = await Promise.all(
+    params.tcodes.map(async (item) => {
+      try {
+        const res = await postJson<ApiResponse<JournalAccountingItem[]>>(
+          "/setup_journal_accounting_inquiry",
+          {
+            type: "bytcode",
+            userlogin: params.userlogin,
+            bpr_id: params.bprId,
+            term: params.term,
+            tcode: item.tcode,
+            payment_gateway_code: params.paymentGatewayCode,
+          }
+        );
 
-  kredit_source_type: "NASABAH",
-  kredit_gol_acc: "",
-  kredit_nobb: "",
-  kredit_nama_bb: "",
-  kredit_nosbb: "",
-  kredit_nama_sbb: "",
-  kredit_type_posting: "",
-  kredit_akun_perantara: "N",
-  kredit_hutang: "N",
-  kredit_piutang: "N",
-});
+        return [item.tcode, res?.data?.length ?? 0] as const;
+      } catch (error) {
+        console.error(
+          "Gagal memuat count journal",
+          item.tcode,
+          params.paymentGatewayCode,
+          error
+        );
 
-const createEmptyAccountingJournalDetail = (
-  tcode: string,
-  keterangan: string,
-  journalReady = false,
-  accountingReady = false,
-  paymentGatewayCode = "MOTION_PAY"
-): JournalAccountingDetail => ({
-  tcode,
-  payment_gateway_code: paymentGatewayCode,
-  keterangan,
-  journal_ready: journalReady,
-  accounting_ready: accountingReady,
-  journals: [
-    {
-      ...createEmptyAccountingJournalItem(1),
-      payment_gateway_code: paymentGatewayCode,
-    },
-  ],
-});
+        return [item.tcode, 0] as const;
+      }
+    })
+  );
+
+  return Object.fromEntries(entries);
+}
 
 export async function getAccountingJournalTcodes(
   bprId: string
