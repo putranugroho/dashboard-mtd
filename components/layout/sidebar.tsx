@@ -32,12 +32,15 @@ const menu: SidebarItem[] = [
           { title: "Setup Relasi Rekonsiliasi", href: "/setup/setup-relasi-rekonsiliasi", permission: PERMISSIONS.SETUP_RELASI_REKONSILIASI_VIEW },
           { title: "Setup Journal Accounting", href: "/setup/setup-journal-accounting", permission: PERMISSIONS.SETUP_JOURNAL_ACCOUNTING_VIEW },
           { title: "Setup Fee", href: "/setup/setup-fee", permission: PERMISSIONS.SETUP_FEE_VIEW },
+          { title: "Setup Fee PG", href: "/setup/setup-fee-pg", permission: PERMISSIONS.SETUP_FEE_VIEW },
+          { title: "Setup Flow Transaksi", href: "/setup/setup-flow-transaksi", permission: PERMISSIONS.SETUP_FEE_VIEW },
           { title: "Setup Master Menu", href: "/setup/setup-master-menu", permission: PERMISSIONS.SETUP_MASTER_MENU_VIEW },
         ],
       },
       {
         title: "MASTER",
         children: [
+          { title: "Master Payment Gateway", href: "/setup/master-payment-gateway", permission: PERMISSIONS.SETUP_FEE_VIEW },
           { title: "Data BPR", href: "/setup/data-bpr", permission: PERMISSIONS.DATA_BPR_VIEW },
           { title: "Setup User", href: "/setup/setup-user", permission: PERMISSIONS.SETUP_USER_VIEW },
           { title: "Setup Banner", href: "/setup/setup-banner", permission: PERMISSIONS.SETUP_BANNER_VIEW },

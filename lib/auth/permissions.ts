@@ -92,3 +92,14 @@ export function hasPermission(
   if (isSuperAdmin) return true;
   return permissions.includes(permission);
 }
+
+// Master Payment Gateway
+export const MASTER_PG_PERMISSIONS = {
+  MASTER_PG_VIEW: 'master_pg.view',
+  MASTER_PG_SAVE: 'master_pg.save',
+  MASTER_PG_DELETE: 'master_pg.delete',
+
+  SETUP_FEE_PG_VIEW: 'setup_fee_pg.view',
+  SETUP_FEE_PG_SAVE: 'setup_fee_pg.save',
+  SETUP_FEE_PG_DELETE: 'setup_fee_pg.delete',
+} as const;
