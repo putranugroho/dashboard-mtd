@@ -5,8 +5,8 @@ import {
   JournalAccountingDetail,
   JournalAccountingItem,
   JournalAccountingTcodeSummary,
+  MasterPaymentGatewayItem,
 } from "@/modules/setup-journal-accounting/types";
-import { createEmptyAccountingJournalDetail } from "@/modules/setup-journal-accounting/dummy";
 
 type ApiResponse<T> = {
   code: string;
@@ -20,6 +20,7 @@ type GetDetailParams = {
   bprId: string;
   userlogin: string;
   term: string;
+  paymentGatewayCode: string;
   keterangan?: string;
   journalReady?: boolean;
   accountingReady?: boolean;
@@ -31,6 +32,7 @@ type SaveParams = {
   kdKantor: string;
   userlogin: string;
   term: string;
+  paymentGatewayCode: string;
   journals: JournalAccountingItem[];
   isExistingSetup?: boolean;
 };
@@ -41,7 +43,59 @@ type DeleteParams = {
   kdKantor: string;
   userlogin: string;
   term: string;
+  paymentGatewayCode: string;
 };
+
+const createEmptyAccountingJournalItem = (
+  journalNo = 1
+): JournalAccountingItem => ({
+  journal_no: journalNo,
+  status_journal: true,
+  keterangan_journal: "",
+  payment_gateway_code: "",
+
+  debit_source_type: "NASABAH",
+  debit_gol_acc: "",
+  debit_nobb: "",
+  debit_nama_bb: "",
+  debit_nosbb: "",
+  debit_nama_sbb: "",
+  debit_type_posting: "",
+  debit_akun_perantara: "N",
+  debit_hutang: "N",
+  debit_piutang: "N",
+
+  kredit_source_type: "NASABAH",
+  kredit_gol_acc: "",
+  kredit_nobb: "",
+  kredit_nama_bb: "",
+  kredit_nosbb: "",
+  kredit_nama_sbb: "",
+  kredit_type_posting: "",
+  kredit_akun_perantara: "N",
+  kredit_hutang: "N",
+  kredit_piutang: "N",
+});
+
+const createEmptyAccountingJournalDetail = (
+  tcode: string,
+  keterangan: string,
+  journalReady = false,
+  accountingReady = false,
+  paymentGatewayCode = "MOTION_PAY"
+): JournalAccountingDetail => ({
+  tcode,
+  payment_gateway_code: paymentGatewayCode,
+  keterangan,
+  journal_ready: journalReady,
+  accounting_ready: accountingReady,
+  journals: [
+    {
+      ...createEmptyAccountingJournalItem(1),
+      payment_gateway_code: paymentGatewayCode,
+    },
+  ],
+});
 
 export async function getAccountingJournalTcodes(
   bprId: string
@@ -73,6 +127,7 @@ export async function getAccountingJournalDetail(
       bpr_id: params.bprId,
       term: params.term,
       tcode: params.tcode,
+      payment_gateway_code: params.paymentGatewayCode,
     }
   );
 
@@ -83,16 +138,20 @@ export async function getAccountingJournalDetail(
       params.tcode,
       params.keterangan || "",
       params.journalReady === true,
-      params.accountingReady === true
+      params.accountingReady === true,
+      params.paymentGatewayCode
     );
   }
 
   return {
     tcode: params.tcode,
+    payment_gateway_code: params.paymentGatewayCode,
     keterangan: params.keterangan || "",
     journal_ready: params.journalReady === true,
     accounting_ready: params.accountingReady === true,
     journals: rows.map((item, index) => ({
+      payment_gateway_code:
+        item.payment_gateway_code || params.paymentGatewayCode,
       journal_no: Number(item.journal_no ?? index + 1),
       status_journal: item.status_journal !== false,
       keterangan_journal: item.keterangan_journal || "",
@@ -136,8 +195,10 @@ export async function saveAccountingJournalBulk(payload: SaveParams) {
     term: payload.term,
     kd_kantor: payload.kdKantor,
     tcode: payload.tcode,
+    payment_gateway_code: payload.paymentGatewayCode,
     data: payload.journals.map((item, index) => ({
       ...item,
+      payment_gateway_code: payload.paymentGatewayCode,
       journal_no: index + 1,
     })),
   });
@@ -151,6 +212,7 @@ export async function deleteAccountingJournal(payload: DeleteParams) {
     term: payload.term,
     kd_kantor: payload.kdKantor,
     tcode: payload.tcode,
+    payment_gateway_code: payload.paymentGatewayCode,
     data: [],
   });
 }
@@ -173,4 +235,15 @@ export async function getAccountingSubtree(): Promise<AccountingCoaNode[]> {
   }
 
   return json?.data ?? [];
+}
+
+export async function getMasterPaymentGateways(): Promise<MasterPaymentGatewayItem[]> {
+  const res = await postJson<ApiResponse<MasterPaymentGatewayItem[]>>(
+    "/master_pg",
+    {
+      action: "list",
+    }
+  );
+
+  return (res.data ?? []).filter((item) => item.is_active === true);
 }

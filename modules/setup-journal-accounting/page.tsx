@@ -3,13 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import BprSelect from "@/components/shared/BprSelect";
 import {
   deleteAccountingJournal,
   getAccountingJournalDetail,
   getAccountingJournalTcodes,
   getAccountingSubtree,
+  getMasterPaymentGateways,
   saveAccountingJournalBulk,
 } from "@/lib/api/journal-accounting";
 import { ListBprItem } from "@/lib/api/bpr";
@@ -21,6 +28,7 @@ import {
   AccountingCoaOption,
   JournalAccountingDetail,
   JournalAccountingTcodeSummary,
+  MasterPaymentGatewayItem,
 } from "./types";
 
 const DEFAULT_USERLOGIN =
@@ -32,6 +40,9 @@ const DEFAULT_KD_KANTOR =
 export default function SetupJournalAccountingPage() {
   const [activeBprId, setActiveBprId] = useState("");
   const [activeBprName, setActiveBprName] = useState("");
+  const [paymentGateways, setPaymentGateways] = useState<MasterPaymentGatewayItem[]>([]);
+  const [selectedPaymentGatewayCode, setSelectedPaymentGatewayCode] = useState("MOTION_PAY");
+  const [loadingPaymentGateway, setLoadingPaymentGateway] = useState(false);
 
   const [query, setQuery] = useState("");
   const [tcodeList, setTcodeList] = useState<JournalAccountingTcodeSummary[]>([]);
@@ -94,7 +105,8 @@ export default function SetupJournalAccountingPage() {
 
   const loadDetail = async (
     bprId: string,
-    summary: JournalAccountingTcodeSummary
+    summary: JournalAccountingTcodeSummary,
+    paymentGatewayCode: string
   ) => {
     try {
       setLoadingDetail(true);
@@ -103,6 +115,7 @@ export default function SetupJournalAccountingPage() {
         bprId,
         userlogin: DEFAULT_USERLOGIN,
         term: DEFAULT_TERM,
+        paymentGatewayCode,
         keterangan: summary.keterangan,
         journalReady: summary.journal_ready,
         accountingReady: summary.accounting_ready,
@@ -121,19 +134,46 @@ export default function SetupJournalAccountingPage() {
     }
   };
 
+  const loadPaymentGateways = async () => {
+    try {
+      setLoadingPaymentGateway(true);
+
+      const result = await getMasterPaymentGateways();
+      setPaymentGateways(result);
+
+      if (result.length > 0) {
+        setSelectedPaymentGatewayCode((prev) => {
+          if (prev && result.some((item) => item.kode === prev)) return prev;
+          return result[0].kode;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setPaymentGateways([]);
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Gagal memuat master payment gateway"
+      );
+    } finally {
+      setLoadingPaymentGateway(false);
+    }
+  };
+
   useEffect(() => {
     loadCoa();
+    loadPaymentGateways();
   }, []);
 
   useEffect(() => {
-    if (!selectedTcode || !activeBprId) return;
+    if (!selectedTcode || !activeBprId || !selectedPaymentGatewayCode) return;
 
     const found = tcodeList.find((item) => item.tcode === selectedTcode);
     if (found) {
       setSelectedSummary(found);
-      loadDetail(activeBprId, found);
+      loadDetail(activeBprId, found, selectedPaymentGatewayCode);
     }
-  }, [selectedTcode, tcodeList, activeBprId]);
+  }, [selectedTcode, tcodeList, activeBprId, selectedPaymentGatewayCode]);
 
   const filteredList = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -174,6 +214,10 @@ export default function SetupJournalAccountingPage() {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
+    if (!selectedPaymentGatewayCode) {
+      window.alert("Silakan pilih payment gateway terlebih dahulu.");
+      return;
+    }
 
     try {
       await saveAccountingJournalBulk({
@@ -182,8 +226,9 @@ export default function SetupJournalAccountingPage() {
         kdKantor: DEFAULT_KD_KANTOR,
         userlogin: DEFAULT_USERLOGIN,
         term: DEFAULT_TERM,
+        paymentGatewayCode: selectedPaymentGatewayCode,
         journals: detail.journals,
-        isExistingSetup: detail.accounting_ready,
+        isExistingSetup: detail.journals.length > 0,
       });
 
       await loadList(activeBprId);
@@ -192,10 +237,14 @@ export default function SetupJournalAccountingPage() {
         tcodeList.find((item) => item.tcode === detail.tcode) || selectedSummary;
 
       if (refreshed) {
-        await loadDetail(activeBprId, {
-          ...refreshed,
-          accounting_ready: true,
-        });
+        await loadDetail(
+          activeBprId,
+          {
+            ...refreshed,
+            accounting_ready: true,
+          },
+          selectedPaymentGatewayCode
+        );
       }
 
       window.alert("Setup journal accounting berhasil disimpan.");
@@ -215,6 +264,10 @@ export default function SetupJournalAccountingPage() {
       window.alert("Silakan pilih BPR terlebih dahulu.");
       return;
     }
+    if (!selectedPaymentGatewayCode) {
+      window.alert("Silakan pilih payment gateway terlebih dahulu.");
+      return;
+    }
 
     try {
       await deleteAccountingJournal({
@@ -223,6 +276,7 @@ export default function SetupJournalAccountingPage() {
         kdKantor: DEFAULT_KD_KANTOR,
         userlogin: DEFAULT_USERLOGIN,
         term: DEFAULT_TERM,
+        paymentGatewayCode: selectedPaymentGatewayCode,
       });
 
       await loadList(activeBprId);
@@ -231,11 +285,15 @@ export default function SetupJournalAccountingPage() {
         tcodeList.find((item) => item.tcode === tcode) || selectedSummary;
 
       if (refreshed) {
-        await loadDetail(activeBprId, {
-          ...refreshed,
-          accounting_ready: false,
-          accounting_journal_count: 0,
-        });
+        await loadDetail(
+          activeBprId,
+          {
+            ...refreshed,
+            accounting_ready: false,
+            accounting_journal_count: 0,
+          },
+          selectedPaymentGatewayCode
+        );
       } else {
         setSelectedDetail(null);
       }
@@ -262,7 +320,7 @@ export default function SetupJournalAccountingPage() {
           Sub Buku Besar.
         </p>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-[360px_1fr] md:items-end">
+        <div className="mt-5 grid gap-4 md:grid-cols-[360px_280px_1fr] md:items-end">
           <BprSelect
             value={activeBprId}
             label="BPR"
@@ -270,6 +328,38 @@ export default function SetupJournalAccountingPage() {
             disabled={loadingList || loadingDetail}
             onChange={handleSelectBpr}
           />
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Payment Gateway
+            </label>
+
+            <Select
+              value={selectedPaymentGatewayCode}
+              disabled={
+                loadingPaymentGateway ||
+                loadingList ||
+                loadingDetail ||
+                paymentGateways.length === 0
+              }
+              onValueChange={(value) => {
+                setSelectedPaymentGatewayCode(value);
+                setSelectedDetail(null);
+              }}
+            >
+              <SelectTrigger className="h-10 w-full">
+                <SelectValue placeholder="Pilih payment gateway" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {paymentGateways.map((item) => (
+                  <SelectItem key={item.kode} value={item.kode}>
+                    {item.nama} ({item.kode})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

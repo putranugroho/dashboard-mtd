@@ -42,6 +42,7 @@ export type JournalAccountingItem = {
   journal_no: number;
   status_journal: boolean;
   keterangan_journal: string;
+  payment_gateway_code?: string;
 
   debit_source_type: AccountingSourceType;
   debit_gol_acc: string;
@@ -68,6 +69,7 @@ export type JournalAccountingItem = {
 
 export type JournalAccountingDetail = {
   tcode: string;
+  payment_gateway_code: string;
   keterangan: string;
   journal_ready: boolean;
   accounting_ready: boolean;
@@ -81,3 +83,16 @@ export type JournalAccountingRowErrors = Partial<{
   kredit_source_type: string;
   kredit_account: string;
 }>;
+
+export type MasterPaymentGatewayItem = {
+  created_at: string;
+  created_by: string;
+  deskripsi: string;
+  global_flat_fee: number;
+  id: number;
+  is_active: boolean;
+  kode: string;
+  nama: string;
+  updated_at: string;
+  updated_by: string;
+};

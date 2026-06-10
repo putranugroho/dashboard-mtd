@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { createEmptyAccountingJournalItem } from "./dummy";
 import AccountingJournalRowForm from "./AccountingJournalRowForm";
 import { validateAccountingJournalDetail } from "./validator";
 import {
@@ -91,7 +90,7 @@ export default function AccountingJournalEditor({
         : null
     );
     setRowErrors({});
-  }, [detail?.tcode]);
+  }, [detail?.tcode, detail?.payment_gateway_code]);
 
   const normalizedDetail = useMemo(() => {
     if (!localDetail) return null;
@@ -116,7 +115,7 @@ export default function AccountingJournalEditor({
     const nextNo = normalizedDetail.journals.length + 1;
     updateDetail({
       ...normalizedDetail,
-      journals: [...normalizedDetail.journals, createEmptyAccountingJournalItem(nextNo)],
+      journals: [...normalizedDetail.journals],
     });
   };
 
@@ -183,7 +182,11 @@ export default function AccountingJournalEditor({
   const handleDelete = async () => {
     if (!canDelete) { window.alert("Anda tidak memiliki akses hapus journal accounting."); return; }
     if (!normalizedDetail) return;
-    if (!window.confirm(`Hapus setup accounting untuk TCode ${normalizedDetail.tcode}?`)) {
+    if (
+      !window.confirm(
+        `Hapus setup accounting untuk TCode ${normalizedDetail.tcode} dan PG ${normalizedDetail.payment_gateway_code}?`
+      )
+    ) {
       return;
     }
 
@@ -218,6 +221,9 @@ export default function AccountingJournalEditor({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge>{normalizedDetail.tcode}</Badge>
+              <Badge variant="outline">
+                PG: {normalizedDetail.payment_gateway_code}
+              </Badge>
               <h2 className="text-lg font-semibold text-gray-900">
                 {normalizedDetail.keterangan}
               </h2>
@@ -260,7 +266,7 @@ export default function AccountingJournalEditor({
 
       {normalizedDetail.journals.map((item, index) => (
         <AccountingJournalRowForm
-          key={`${normalizedDetail.tcode}-${item.journal_no}`}
+          key={`${normalizedDetail.tcode}-${normalizedDetail.payment_gateway_code}-${item.journal_no}`}
           index={index}
           item={item}
           coaOptions={coaOptions}
