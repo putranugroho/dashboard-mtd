@@ -1,5 +1,6 @@
 import { buildApiUrl, postFormData, postJson } from "./client";
 import { BprProfile, BprTcodeItem } from "@/modules/data-bpr/types";
+import { normalizeBprProfile } from "@/modules/data-bpr/bpr-profile-factory";
 
 type ApiResponse<T> = {
   code: string;
@@ -9,8 +10,16 @@ type ApiResponse<T> = {
 };
 
 type BprDetailWithTcodeResponse = {
-  profile: BprProfile;
-  tcodes: BprTcodeItem[];
+  profile?: Partial<BprProfile> | null;
+  tcodes?: BprTcodeItem[];
+};
+
+export type BprSaveProfileResponse = {
+  bpr_id?: string;
+  is_new_profile?: boolean;
+  auto_user?: unknown[];
+  create_super_admin?: boolean;
+  create_system_user?: boolean;
 };
 
 export async function getBprDetailWithTcodes(bprId: string) {
@@ -22,11 +31,23 @@ export async function getBprDetailWithTcodes(bprId: string) {
     }
   );
 
-  return res.data;
+  const rawProfile = res.data?.profile ?? null;
+
+  const isExisting =
+    rawProfile?.is_existing_profile === true ||
+    typeof rawProfile?.id === "number";
+
+  return {
+    profile: normalizeBprProfile(rawProfile, bprId, {
+      defaultExisting: isExisting,
+      defaultProvisioning: !isExisting,
+    }),
+    tcodes: res.data?.tcodes ?? [],
+  };
 }
 
 export async function saveBprProfile(payload: BprProfile, userlogin = "admin") {
-  return postJson<ApiResponse<null>>("/bpr_profile", {
+  return postJson<ApiResponse<BprSaveProfileResponse>>("/bpr_profile", {
     action: "upsert",
     bpr_id: payload.bpr_id,
     nama_bpr: payload.nama_bpr,
@@ -72,11 +93,18 @@ export async function saveBprTcodes(
 export type ListBprItem = BprProfile;
 
 export async function getListBpr() {
-  const res = await postJson<ApiResponse<BprProfile[]>>("/bpr_profile", {
+  const res = await postJson<ApiResponse<Partial<BprProfile>[]>>("/bpr_profile", {
     action: "list",
   });
 
-  return Array.isArray(res.data) ? res.data : [];
+  return Array.isArray(res.data)
+    ? res.data.map((item) =>
+        normalizeBprProfile(item, item.bpr_id || "", {
+          defaultExisting: true,
+          defaultProvisioning: false,
+        })
+      )
+    : [];
 }
 
 export type UploadBprLogoResponse = {

@@ -1,5 +1,6 @@
 import { postJson } from "./client";
 import { BprProfile } from "@/modules/data-bpr/types";
+import { normalizeBprProfile } from "@/modules/data-bpr/bpr-profile-factory";
 import { GatewayMonitorItem } from "@/modules/monitoring-gateway-bpr/types";
 
 type ApiResponse<T> = {
@@ -42,15 +43,24 @@ function nowString() {
 }
 
 function normalizeBprList(res: unknown): BprProfile[] {
-  const payload = res as ApiResponse<BprListResponse | BprProfile[]>;
+  const payload = res as ApiResponse<BprListResponse | Partial<BprProfile>[]>;
 
-  if (Array.isArray(payload.data)) return payload.data;
+  let rows: Partial<BprProfile>[] = [];
 
-  if (Array.isArray(payload.data?.profile)) return payload.data.profile;
+  if (Array.isArray(payload.data)) {
+    rows = payload.data;
+  } else if (Array.isArray(payload.data?.profile)) {
+    rows = payload.data.profile;
+  } else if (Array.isArray(payload.data?.data)) {
+    rows = payload.data.data;
+  }
 
-  if (Array.isArray(payload.data?.data)) return payload.data.data;
-
-  return [];
+  return rows.map((item) =>
+    normalizeBprProfile(item, item.bpr_id || "", {
+      defaultExisting: true,
+      defaultProvisioning: false,
+    })
+  );
 }
 
 export async function getAllBprProfiles() {

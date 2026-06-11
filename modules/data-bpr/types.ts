@@ -1,4 +1,5 @@
 export type BprProfile = {
+  id?: number;
   bpr_id: string;
   nama_bpr: string;
   alamat: string;

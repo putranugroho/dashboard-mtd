@@ -155,6 +155,10 @@ export default function BprContactDialog({
                 <Field label="No HP PIC" value={profile?.pic_hp} />
                 <Field label="Email" value={profile?.email} />
                 <Field label="Gateway URL" value={profile?.url_gateway || item?.gateway_url} />
+                <Field label="Collme URL" value={profile?.url_collme} />
+                <Field label="Medfo URL" value={profile?.url_medfo} />
+                <Field label="HRM URL" value={profile?.url_hrm} />
+                <Field label="Core URL" value={profile?.url_core} />
               </div>
 
               <Field label="Alamat" value={profile?.alamat} />

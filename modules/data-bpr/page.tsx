@@ -13,6 +13,10 @@ import BprForm from "./BprForm";
 import BprTcodeMapping from "./BprTcodeMapping";
 import { BprProfile, BprTcodeItem } from "./types";
 import {
+  createEmptyBprProfile,
+  normalizeBprProfile,
+} from "./bpr-profile-factory";
+import {
   getBprDetailWithTcodes,
   saveBprProfile,
   saveBprTcodes,
@@ -47,7 +51,7 @@ const emptyProfile = (bprId: string): BprProfile => ({
 export default function DataBprPage() {
   const [searchCode, setSearchCode] = useState("");
   const [selectedCode, setSelectedCode] = useState("");
-  const [profile, setProfile] = useState<BprProfile>(emptyProfile(""));
+  const [profile, setProfile] = useState<BprProfile>(createEmptyBprProfile(""));
   const [tcodes, setTcodes] = useState<BprTcodeItem[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -63,23 +67,22 @@ export default function DataBprPage() {
       setLoading(true);
       const result = await getBprDetailWithTcodes(code);
 
-      setSelectedCode(code);
-      const nextProfile = result.profile ?? emptyProfile(code);
+      const nextProfile = result.profile ?? createEmptyBprProfile(code);
       const isExisting = nextProfile.is_existing_profile === true;
 
-      setProfile({
-        ...emptyProfile(code),
-        ...nextProfile,
-        is_existing_profile: isExisting,
-        create_super_admin: !isExisting,
-        create_system_user: !isExisting,
-      });
+      setSelectedCode(code);
+      setProfile(
+        normalizeBprProfile(nextProfile, code, {
+          defaultExisting: isExisting,
+          defaultProvisioning: !isExisting,
+        })
+      );
       setLogoFile(null);
       setTcodes(result.tcodes ?? []);
     } catch (error) {
       console.error(error);
       setSelectedCode(code);
-      setProfile(emptyProfile(code));
+      setProfile(createEmptyBprProfile(code));
       setTcodes([]);
       window.alert(
         error instanceof Error ? error.message : "Gagal memuat data BPR"
@@ -151,15 +154,37 @@ export default function DataBprPage() {
         setProfile(nextProfile);
       }
 
-      await saveBprProfile(nextProfile);
+      const saveResult = await saveBprProfile(nextProfile);
       setLogoFile(null);
 
-      setProfile((prev) => ({
-        ...prev,
-        is_existing_profile: true,
-        create_super_admin: false,
-        create_system_user: false,
-      }));
+      setProfile((prev) =>
+        normalizeBprProfile(
+          {
+            ...prev,
+            logo_bpr: nextProfile.logo_bpr,
+            is_existing_profile: true,
+            create_super_admin: false,
+            create_system_user: false,
+          },
+          prev.bpr_id || selectedCode,
+          {
+            defaultExisting: true,
+            defaultProvisioning: false,
+          }
+        )
+      );
+
+      const autoUser = saveResult.data?.auto_user;
+      if (Array.isArray(autoUser) && autoUser.length > 0) {
+        const failed = autoUser.filter((item: any) => item?.success === false);
+
+        if (failed.length > 0) {
+          window.alert(
+            `Profile BPR berhasil disimpan, tetapi ada ${failed.length} proses auto user yang gagal.`
+          );
+          return;
+        }
+      }
 
       window.alert("Profile BPR berhasil disimpan.");
     } catch (error) {
@@ -186,7 +211,14 @@ export default function DataBprPage() {
         profile.bpr_id || selectedCode
       );
       setProfile(
-        refreshed.profile ?? emptyProfile(profile.bpr_id || selectedCode)
+        normalizeBprProfile(
+          refreshed.profile,
+          profile.bpr_id || selectedCode,
+          {
+            defaultExisting: true,
+            defaultProvisioning: false,
+          }
+        )
       );
       setTcodes(refreshed.tcodes ?? []);
 

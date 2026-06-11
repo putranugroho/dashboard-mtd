@@ -7,6 +7,7 @@ import { useSession } from "@/lib/auth/use-session";
 import { getBprDetailWithTcodes } from "@/lib/api/bpr";
 import { checkAllGatewayStatuses } from "@/lib/api/monitoring-gateway";
 import { BprProfile } from "@/modules/data-bpr/types";
+import { normalizeBprProfile } from "@/modules/data-bpr/bpr-profile-factory";
 import BprContactDialog from "./BprContactDialog";
 import MonitoringGatewayGrid from "./MonitoringGatewayGrid";
 import MonitoringGatewayHeader from "./MonitoringGatewayHeader";
@@ -109,27 +110,41 @@ export default function MonitoringGatewayBPRPage() {
         return;
       }
 
-      setSelectedProfile(detail.profile);
+      setSelectedProfile(
+        normalizeBprProfile(detail.profile, item.bpr_id, {
+          defaultExisting: true,
+          defaultProvisioning: false,
+        })
+      );
     } catch (error) {
       console.error(error);
 
-      setSelectedProfile({
-        bpr_id: item.bpr_id,
-        nama_bpr: item.nama_bpr,
-        alamat: "-",
-        email: "-",
-        kode_pos: "",
-        tanggal_bergabung: "",
-        pic_nama: "-",
-        pic_hp: "-",
-        head_teller_nama: "",
-        head_teller_hp: "",
-        direktur_nama: "",
-        direktur_hp: "",
-        url_gateway: item.gateway_url,
-        logo_bpr: "",
-        is_active: true,
-      });
+      setSelectedProfile(
+        normalizeBprProfile(
+          {
+            bpr_id: item.bpr_id,
+            nama_bpr: item.nama_bpr,
+            alamat: "-",
+            email: "-",
+            kode_pos: "",
+            tanggal_bergabung: "",
+            pic_nama: "-",
+            pic_hp: "-",
+            head_teller_nama: "",
+            head_teller_hp: "",
+            direktur_nama: "",
+            direktur_hp: "",
+            url_gateway: item.gateway_url,
+            logo_bpr: "",
+            is_active: true,
+          },
+          item.bpr_id,
+          {
+            defaultExisting: true,
+            defaultProvisioning: false,
+          }
+        )
+      );
 
       setPicError(
         error instanceof Error
