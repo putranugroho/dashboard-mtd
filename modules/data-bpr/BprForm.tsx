@@ -16,6 +16,42 @@ type Props = {
   onLogoFileChange?: (file: File | null) => void;
 };
 
+function YesNoButtonGroup({
+  value,
+  onChange,
+}: {
+  value: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        className={`rounded-lg border px-4 py-2 text-sm ${
+          value
+            ? "border-green-600 bg-green-50 text-green-700"
+            : "border-gray-200 bg-white text-gray-600"
+        }`}
+        onClick={() => onChange(true)}
+      >
+        YES
+      </button>
+
+      <button
+        type="button"
+        className={`rounded-lg border px-4 py-2 text-sm ${
+          !value
+            ? "border-red-600 bg-red-50 text-red-700"
+            : "border-gray-200 bg-white text-gray-600"
+        }`}
+        onClick={() => onChange(false)}
+      >
+        NO
+      </button>
+    </div>
+  );
+}
+
 export default function BprForm({
   value,
   onChange,
@@ -189,14 +225,96 @@ export default function BprForm({
             onChange={(e) => onChange({ tanggal_bergabung: e.target.value })}
           />
         </div>
+      </div>
 
-        <div className="grid gap-2">
-          <Label>URL Gateway</Label>
-          <Input
-            value={value.url_gateway}
-            onChange={(e) => onChange({ url_gateway: e.target.value })}
-            placeholder="https://gateway.example.com"
-          />
+      <div className="mt-5 rounded-xl border bg-gray-50 p-4">
+        <h3 className="mb-4 text-sm font-semibold">Konfigurasi URL Service</h3>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-2">
+            <Label>URL Gateway</Label>
+            <Input
+              value={value.url_gateway}
+              onChange={(e) => onChange({ url_gateway: e.target.value })}
+              placeholder="https://gateway.example.com"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>URL Collme</Label>
+            <Input
+              value={value.url_collme}
+              onChange={(e) => onChange({ url_collme: e.target.value })}
+              placeholder="https://collme.example.com"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>URL Medfo</Label>
+            <Input
+              value={value.url_medfo}
+              onChange={(e) => onChange({ url_medfo: e.target.value })}
+              placeholder="https://medfo.example.com"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>URL HRM</Label>
+            <Input
+              value={value.url_hrm}
+              onChange={(e) => onChange({ url_hrm: e.target.value })}
+              placeholder="https://hrm.example.com"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>URL Core</Label>
+            <Input
+              value={value.url_core}
+              onChange={(e) => onChange({ url_core: e.target.value })}
+              placeholder="https://core.example.com"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-xl border bg-gray-50 p-4">
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold">Provisioning User Otomatis</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            Default YES untuk BPR baru atau profile yang belum pernah tersimpan.
+            Default NO untuk update profile existing.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg border bg-white p-4">
+            <div className="mb-3">
+              <Label>Buat Super Admin?</Label>
+              <p className="mt-1 text-xs text-gray-500">
+                Jika YES, sistem akan membuat user otomatis dengan lvuser 2.
+              </p>
+            </div>
+
+            <YesNoButtonGroup
+              value={value.create_super_admin === true}
+              onChange={(next) => onChange({ create_super_admin: next })}
+            />
+          </div>
+
+          <div className="rounded-lg border bg-white p-4">
+            <div className="mb-3">
+              <Label>Buat System User?</Label>
+              <p className="mt-1 text-xs text-gray-500">
+                Jika YES, sistem akan membuat user otomatis dengan lvuser 3.
+              </p>
+            </div>
+
+            <YesNoButtonGroup
+              value={value.create_system_user === true}
+              onChange={(next) => onChange({ create_system_user: next })}
+            />
+          </div>
         </div>
       </div>
 

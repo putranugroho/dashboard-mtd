@@ -40,9 +40,15 @@ export async function saveBprProfile(payload: BprProfile, userlogin = "admin") {
     email: payload.email,
     tanggal_bergabung: payload.tanggal_bergabung,
     url_gateway: payload.url_gateway,
+    url_collme: payload.url_collme,
+    url_medfo: payload.url_medfo,
+    url_hrm: payload.url_hrm,
+    url_core: payload.url_core,
     kode_pos: payload.kode_pos,
     logo_bpr: payload.logo_bpr,
     is_active: payload.is_active,
+    create_super_admin: payload.create_super_admin === true,
+    create_system_user: payload.create_system_user === true,
     userlogin,
   });
 }

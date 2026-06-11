@@ -11,9 +11,16 @@ export type BprProfile = {
   email: string;
   tanggal_bergabung: string;
   url_gateway: string;
+  url_collme: string;
+  url_medfo: string;
+  url_hrm: string;
+  url_core: string;
   kode_pos: string;
   logo_bpr: string;
   is_active: boolean;
+  is_existing_profile?: boolean;
+  create_super_admin?: boolean;
+  create_system_user?: boolean;
 };
 
 export type BprTcodeItem = {

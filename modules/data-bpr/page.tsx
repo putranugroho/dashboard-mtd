@@ -32,15 +32,22 @@ const emptyProfile = (bprId: string): BprProfile => ({
   email: "",
   tanggal_bergabung: "",
   url_gateway: "",
+  url_collme: "",
+  url_medfo: "",
+  url_hrm: "",
+  url_core: "",
   kode_pos: "",
   logo_bpr: "",
   is_active: true,
+  is_existing_profile: false,
+  create_super_admin: true,
+  create_system_user: true,
 });
 
 export default function DataBprPage() {
-  const [searchCode, setSearchCode] = useState("609999");
-  const [selectedCode, setSelectedCode] = useState("609999");
-  const [profile, setProfile] = useState<BprProfile>(emptyProfile("609999"));
+  const [searchCode, setSearchCode] = useState("");
+  const [selectedCode, setSelectedCode] = useState("");
+  const [profile, setProfile] = useState<BprProfile>(emptyProfile(""));
   const [tcodes, setTcodes] = useState<BprTcodeItem[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -57,7 +64,16 @@ export default function DataBprPage() {
       const result = await getBprDetailWithTcodes(code);
 
       setSelectedCode(code);
-      setProfile(result.profile ?? emptyProfile(code));
+      const nextProfile = result.profile ?? emptyProfile(code);
+      const isExisting = nextProfile.is_existing_profile === true;
+
+      setProfile({
+        ...emptyProfile(code),
+        ...nextProfile,
+        is_existing_profile: isExisting,
+        create_super_admin: !isExisting,
+        create_system_user: !isExisting,
+      });
       setLogoFile(null);
       setTcodes(result.tcodes ?? []);
     } catch (error) {
@@ -137,6 +153,13 @@ export default function DataBprPage() {
 
       await saveBprProfile(nextProfile);
       setLogoFile(null);
+
+      setProfile((prev) => ({
+        ...prev,
+        is_existing_profile: true,
+        create_super_admin: false,
+        create_system_user: false,
+      }));
 
       window.alert("Profile BPR berhasil disimpan.");
     } catch (error) {
