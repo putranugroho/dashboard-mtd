@@ -205,27 +205,6 @@ export default function MonitoringAkunCollMePage() {
 
       <CollMeSummaryCards summary={summary} />
 
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-center">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Data Collector Coll Me
-          </h2>
-          <p className="text-sm text-gray-500">
-            Filter aktif: BPR, keyword, kantor, dan status aktif.
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={filteredData.length === 0 || !canExport}
-          title={!canExport ? "Anda tidak memiliki akses export." : undefined}
-        >
-          <Download className="mr-2 size-4" />
-          Download Excel
-        </Button>
-      </div>
-
       <CollMeTable data={filteredData} />
     </div>
   );

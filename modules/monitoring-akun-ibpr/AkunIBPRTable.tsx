@@ -97,8 +97,8 @@ export default function AkunIBPRTable({ data }: Props) {
             style={{ width: TABLE_WIDTH, minWidth: TABLE_WIDTH }}
           >
             <colgroup>
-              <col style={{ width: COL_USER }} />
               <col style={{ width: COL_NAME }} />
+              <col style={{ width: COL_USER }} />
               <col style={{ width: 120 }} />
               <col style={{ width: 150 }} />
               <col style={{ width: 150 }} />
@@ -114,16 +114,16 @@ export default function AkunIBPRTable({ data }: Props) {
             <thead>
               <tr className="text-left">
                 <th
-                  style={stickyUserHeaderStyle}
-                  className="border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700"
-                >
-                  User ID
-                </th>
-                <th
                   style={stickyNameHeaderStyle}
                   className="border-b border-r bg-gray-50 px-4 py-3 font-semibold text-gray-700"
                 >
                   Nama Lengkap
+                </th>
+                <th
+                  style={stickyUserHeaderStyle}
+                  className="border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700"
+                >
+                  User ID
                 </th>
                 <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">BPR</th>
                 <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">No Rekening</th>
