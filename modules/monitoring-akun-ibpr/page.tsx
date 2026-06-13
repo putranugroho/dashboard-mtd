@@ -188,27 +188,6 @@ export default function MonitoringAkunIBPRPage() {
 
       <AkunIBPRSummaryCards summary={summary} />
 
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-center">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Hasil Monitoring Akun IBPR
-          </h2>
-          <p className="text-sm text-gray-500">
-            Data ditampilkan dalam satu tabel karena users_ibpr tidak memiliki role.
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={filteredData.length === 0 || !canExport}
-          title={!canExport ? "Anda tidak memiliki akses export." : undefined}
-        >
-          <Download className="mr-2 size-4" />
-          Download Excel
-        </Button>
-      </div>
-
       <AkunIBPRTable data={filteredData} />
     </div>
   );

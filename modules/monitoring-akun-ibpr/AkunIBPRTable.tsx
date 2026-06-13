@@ -9,8 +9,8 @@ type Props = {
 };
 
 const TABLE_WIDTH = 1480;
-const COL_USER = 180;
 const COL_NAME = 240;
+const COL_USER = 180;
 
 function maskToken(token: string) {
   if (!token.trim()) return "-";
@@ -28,6 +28,7 @@ function formatDate(value: string) {
   if (!value) return "-";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
+
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
@@ -37,18 +38,9 @@ function formatDate(value: string) {
   }).format(date);
 }
 
-const stickyUserHeaderStyle: CSSProperties = {
-  position: "sticky",
-  left: 0,
-  zIndex: 50,
-  width: COL_USER,
-  minWidth: COL_USER,
-  maxWidth: COL_USER,
-};
-
 const stickyNameHeaderStyle: CSSProperties = {
   position: "sticky",
-  left: COL_USER,
+  left: 0,
   zIndex: 50,
   width: COL_NAME,
   minWidth: COL_NAME,
@@ -56,18 +48,9 @@ const stickyNameHeaderStyle: CSSProperties = {
   boxShadow: "8px 0 10px -8px rgba(0,0,0,0.35)",
 };
 
-const stickyUserBodyStyle: CSSProperties = {
-  position: "sticky",
-  left: 0,
-  zIndex: 40,
-  width: COL_USER,
-  minWidth: COL_USER,
-  maxWidth: COL_USER,
-};
-
 const stickyNameBodyStyle: CSSProperties = {
   position: "sticky",
-  left: COL_USER,
+  left: 0,
   zIndex: 40,
   width: COL_NAME,
   minWidth: COL_NAME,
@@ -119,29 +102,51 @@ export default function AkunIBPRTable({ data }: Props) {
                 >
                   Nama Lengkap
                 </th>
-                <th
-                  style={stickyUserHeaderStyle}
-                  className="border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700"
-                >
+
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
                   User ID
                 </th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">BPR</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">No Rekening</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">No Ponsel</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">No KTP</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Token</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Blokir</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Status</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Device ID</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Server</th>
-                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">Created</th>
+
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  BPR
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  No Rekening
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  No Ponsel
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  No KTP
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Token
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Blokir
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Status
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Device ID
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Server
+                </th>
+                <th className="relative z-0 border-b bg-gray-50 px-4 py-3 font-semibold text-gray-700">
+                  Created
+                </th>
               </tr>
             </thead>
 
             <tbody>
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="px-4 py-8 text-center text-gray-500">
+                  <td
+                    colSpan={12}
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
                     Tidak ada account IBPR yang sesuai filter.
                   </td>
                 </tr>
@@ -153,26 +158,32 @@ export default function AkunIBPRTable({ data }: Props) {
                   const isDevelopment = item.development === "Y";
 
                   return (
-                    <tr
-                      key={`${item.id}-${item.users_id}`}
-                      className="group"
-                    >
-                      <td
-                        style={stickyUserBodyStyle}
-                        className="border-b bg-white px-4 py-3 font-semibold text-gray-900 group-hover:bg-gray-50"
-                      >
-                        <div className="truncate">{item.users_id || "-"}</div>
-                      </td>
+                    <tr key={`${item.id}-${item.users_id}`} className="group">
                       <td
                         style={stickyNameBodyStyle}
                         className="border-b border-r bg-white px-4 py-3 group-hover:bg-gray-50"
                       >
-                        <div className="truncate">{item.nama_lengkap || "-"}</div>
+                        <div className="truncate">
+                          {item.nama_lengkap || "-"}
+                        </div>
                       </td>
-                      <td className="relative z-0 border-b px-4 py-3">{item.bpr_id || "-"}</td>
-                      <td className="relative z-0 border-b px-4 py-3">{item.no_rekening || "-"}</td>
-                      <td className="relative z-0 border-b px-4 py-3">{item.nomor_ponsel || "-"}</td>
-                      <td className="relative z-0 border-b px-4 py-3">{item.no_ktp || "-"}</td>
+
+                      <td className="relative z-0 border-b px-4 py-3 font-semibold text-gray-900">
+                        <div className="truncate">{item.users_id || "-"}</div>
+                      </td>
+
+                      <td className="relative z-0 border-b px-4 py-3">
+                        {item.bpr_id || "-"}
+                      </td>
+                      <td className="relative z-0 border-b px-4 py-3">
+                        {item.no_rekening || "-"}
+                      </td>
+                      <td className="relative z-0 border-b px-4 py-3">
+                        {item.nomor_ponsel || "-"}
+                      </td>
+                      <td className="relative z-0 border-b px-4 py-3">
+                        {item.no_ktp || "-"}
+                      </td>
                       <td className="relative z-0 border-b px-4 py-3">
                         <div className="flex max-w-[220px] flex-col gap-1">
                           {hasToken ? (
