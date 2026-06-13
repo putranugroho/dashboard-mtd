@@ -75,12 +75,13 @@ export default function TrxLogFilter({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            BPR ID
+            BPR ID <span className="text-red-500">*</span>
           </label>
           <input
             value={filter.bprId}
+            required
             onChange={(e) => onChange({ ...filter, bprId: e.target.value })}
-            placeholder="609999"
+            placeholder="Wajib diisi"
             className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-gray-600"
           />
         </div>

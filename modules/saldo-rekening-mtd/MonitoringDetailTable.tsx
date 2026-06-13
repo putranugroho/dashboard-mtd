@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import type { SaldoMTDMonitoringDetailItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   title: string;
@@ -24,7 +25,7 @@ export default function MonitoringDetailTable({
       </div>
 
       <div className="overflow-hidden rounded-xl border">
-        <div className="overflow-x-auto">
+        <HorizontalDragScroll>
           <table className="w-full min-w-[900px] border-collapse text-sm">
             <thead className="bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
@@ -89,7 +90,7 @@ export default function MonitoringDetailTable({
               )}
             </tbody>
           </table>
-        </div>
+        </HorizontalDragScroll>
       </div>
     </div>
   );

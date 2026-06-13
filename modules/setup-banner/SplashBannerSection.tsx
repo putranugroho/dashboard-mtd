@@ -15,6 +15,7 @@ import BannerForm from "./BannerForm";
 import BannerPreviewDialog from "./BannerPreviewDialog";
 import { BannerFormValues, BannerItem } from "./types";
 import { activateSplashBanner, resolveBannerAssetUrl } from "@/lib/api/banner";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: BannerItem[];
@@ -111,6 +112,8 @@ export default function SplashBannerSection({
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border">
+          <HorizontalDragScroll>
+            <div className="min-w-[820px]">
             <div className="grid grid-cols-[80px_120px_1fr_140px_240px] bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-600">
                 <div>ID</div>
                 <div>Preview</div>
@@ -208,6 +211,8 @@ export default function SplashBannerSection({
                 );
             })}
             </div>
+          </HorizontalDragScroll>
+        </div>
       )}
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

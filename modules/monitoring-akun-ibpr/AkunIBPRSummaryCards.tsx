@@ -22,7 +22,7 @@ export default function AkunIBPRSummaryCards({ summary }: Props) {
       </div>
 
       <div className="rounded-xl border bg-gray-50 p-4">
-        <p className="text-sm text-gray-500">Status Account</p>
+        <p className="text-sm text-gray-500">Status</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge>Aktif: {summary.active}</Badge>
           <Badge variant="destructive">Deleted: {summary.deleted}</Badge>
@@ -30,7 +30,7 @@ export default function AkunIBPRSummaryCards({ summary }: Props) {
       </div>
 
       <div className="rounded-xl border bg-gray-50 p-4">
-        <p className="text-sm text-gray-500">Lock & Mode</p>
+        <p className="text-sm text-gray-500">Lock & Server</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge variant="destructive">Locked: {summary.locked}</Badge>
           <Badge variant="secondary">Dev: {summary.development}</Badge>

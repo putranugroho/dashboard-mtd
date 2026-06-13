@@ -11,6 +11,8 @@ type Props = {
   onChange: (filter: UserAccountFilter) => void;
   onReload: () => void;
   canSearch?: boolean;
+  title?: string;
+  description?: string;
 };
 
 export default function UserAccountFilterBar({
@@ -19,16 +21,18 @@ export default function UserAccountFilterBar({
   onChange,
   onReload,
   canSearch = true,
+  title = "Monitoring Akun Medfo",
+  description = "Pantau account dari tabel users_info berdasarkan role, token, dan status.",
 }: Props) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
-            Monitoring User Account
+            {title}
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Pantau account dari tabel users_info berdasarkan role, token, dan status delete.
+            {description}
           </p>
         </div>
 
@@ -42,8 +46,8 @@ export default function UserAccountFilterBar({
         <div className="md:col-span-2">
           <BprSelect
             value={filter.bprId}
-            label="Filter BPR"
-            placeholder="Semua BPR"
+            label="BPR *"
+            placeholder="Pilih BPR"
             disabled={loading}
             onChange={(bprId) => onChange({ ...filter, bprId })}
           />
@@ -88,7 +92,7 @@ export default function UserAccountFilterBar({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700">Deleted</label>
+          <label className="text-sm font-semibold text-gray-700">Status</label>
           <select
             value={filter.statusDelete}
             disabled={loading}

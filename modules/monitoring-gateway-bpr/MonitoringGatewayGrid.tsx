@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GatewayMonitorItem } from "./types";
 import { getGatewayStatusLabel, getGatewayStatusTone } from "./utils";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   problemItems: GatewayMonitorItem[];
@@ -66,7 +67,7 @@ function GatewayTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <HorizontalDragScroll>
         <table className="w-full min-w-[1080px] border-collapse text-sm">
           <thead>
             <tr className="border-b bg-gray-50 text-left">
@@ -153,7 +154,7 @@ function GatewayTable({
             )}
           </tbody>
         </table>
-      </div>
+      </HorizontalDragScroll>
     </div>
   );
 }

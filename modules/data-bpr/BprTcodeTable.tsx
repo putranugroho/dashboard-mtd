@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { BprTcodeItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: BprTcodeItem[];
@@ -12,7 +13,8 @@ type Props = {
 export default function BprTcodeTable({ data, onToggle, canRelasi = true }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border bg-white">
-      <table className="w-full border-collapse">
+      <HorizontalDragScroll>
+        <table className="w-full min-w-[820px] border-collapse">
         <thead>
           <tr className="border-b bg-gray-50 text-left">
             <th className="px-4 py-3 text-sm font-semibold text-gray-700">
@@ -103,7 +105,8 @@ export default function BprTcodeTable({ data, onToggle, canRelasi = true }: Prop
             })
           )}
         </tbody>
-      </table>
+        </table>
+      </HorizontalDragScroll>
     </div>
   );
 }

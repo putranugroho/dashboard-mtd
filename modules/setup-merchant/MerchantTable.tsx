@@ -5,6 +5,7 @@ import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MerchantItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: MerchantItem[];
@@ -16,7 +17,7 @@ type Props = {
 
 export default function MerchantTable({ data, onEdit, onDelete, canSave = true, canDelete = true }: Props) {
   return (
-    <div className="overflow-x-auto">
+    <HorizontalDragScroll>
       <table className="w-full min-w-[840px] border-collapse text-sm">
         <thead>
           <tr className="border-b bg-gray-50 text-left">
@@ -88,6 +89,6 @@ export default function MerchantTable({ data, onEdit, onDelete, canSave = true, 
           )}
         </tbody>
       </table>
-    </div>
+    </HorizontalDragScroll>
   );
 }

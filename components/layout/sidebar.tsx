@@ -61,6 +61,7 @@ const menu: SidebarItem[] = [
         children: [
           { title: "User Akun IBPR", href: "/monitoring/monitoring-akun-ibpr", permission: PERMISSIONS.MONITORING_AKUN_IBPR_VIEW },
           { title: "User Akun Medfo", href: "/monitoring/monitoring-user-account", permission: PERMISSIONS.MONITORING_USER_ACCOUNT_VIEW },
+          { title: "User Akun Coll Me", href: "/monitoring/monitoring-akun-coll-me", permission: PERMISSIONS.MONITORING_AKUN_COLL_ME_VIEW },
         ],
       },
     ],

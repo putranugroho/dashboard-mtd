@@ -15,9 +15,9 @@ import { AkunIBPRFilter, AkunIBPRItem, AkunIBPRSummary } from "./types";
 const initialFilter: AkunIBPRFilter = {
   bprId: "",
   statusToken: "ALL",
-  statusDelete: "ALL",
-  statusLock: "ALL",
-  development: "ALL",
+  statusDelete: "ACTIVE",
+  statusLock: "UNLOCKED",
+  development: "PRODUCTION",
   keyword: "",
 };
 
@@ -68,9 +68,9 @@ function downloadCsv(filename: string, rows: AkunIBPRItem[]) {
     "Has Token",
     "Token",
     "Is Lock",
-    "Is Deleted",
+    "Status",
     "Device ID",
-    "Development",
+    "Server",
     "Created Date",
   ];
 
@@ -118,11 +118,18 @@ export default function MonitoringAkunIBPRPage() {
   const [data, setData] = useState<AkunIBPRItem[]>([]);
 
   const loadData = async () => {
+    const bprId = filter.bprId.trim();
+
+    if (!bprId) {
+      window.alert("BPR wajib diisi.");
+      return;
+    }
+
     try {
       setLoading(true);
 
       const result = await getMonitoringAkunIBPR({
-        bprId: filter.bprId,
+        bprId,
       });
 
       setData(result);
@@ -137,11 +144,6 @@ export default function MonitoringAkunIBPRPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
@@ -181,6 +183,7 @@ export default function MonitoringAkunIBPRPage() {
         loading={loading}
         onChange={setFilter}
         onReload={loadData}
+        canSearch={canSearch}
       />
 
       <AkunIBPRSummaryCards summary={summary} />

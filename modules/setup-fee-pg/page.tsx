@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, RefreshCcw, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -217,8 +218,8 @@ export default function SetupFeePGPage() {
                 </div>
 
                 {/* FEE TABLE */}
-                <div className="rounded-2xl border bg-white shadow-sm overflow-x-auto">
-                  <Table>
+                <HorizontalDragScroll className="rounded-2xl border bg-white shadow-sm">
+                  <Table className="min-w-[900px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[220px]">TCode Transaksi</TableHead>
@@ -278,7 +279,7 @@ export default function SetupFeePGPage() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
+                </HorizontalDragScroll>
 
                 {/* SAVED DATA PREVIEW */}
                 {savedFees.length > 0 && (

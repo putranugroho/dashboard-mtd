@@ -30,7 +30,7 @@ export default function UserAccountSummaryCards({ summary }: Props) {
       </div>
 
       <div className="rounded-xl border bg-gray-50 p-4">
-        <p className="text-sm text-gray-500">Status Delete</p>
+        <p className="text-sm text-gray-500">Status</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge>Aktif: {summary.active}</Badge>
           <Badge variant="destructive">Deleted: {summary.deleted}</Badge>

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 
 import { RelasiRow, SBBOption } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   rows: RelasiRow[];
@@ -122,7 +123,8 @@ export default function RelasiTable({
         </p>
       </div>
 
-      <Table>
+      <HorizontalDragScroll className="rounded-xl border">
+        <Table className="min-w-[980px]">
         <TableHeader>
           <TableRow>
             <TableHead className="text-center">Jenis</TableHead>
@@ -208,7 +210,8 @@ export default function RelasiTable({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+        </Table>
+      </HorizontalDragScroll>
     </div>
   );
 }

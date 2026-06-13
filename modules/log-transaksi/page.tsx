@@ -25,16 +25,29 @@ import type {
   TrxLogTimelineItem,
 } from "./types";
 
-const defaultFilter: TrxLogFilterState = {
-  trxCategory: "ALL",
-  bprId: "",
-  rrn: "",
-  status: "ALL",
-  tglAwal: "",
-  tglAkhir: "",
-  limit: 50,
-  offset: 0,
-};
+function getTodayYmd() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function createDefaultFilter(): TrxLogFilterState {
+  const today = getTodayYmd();
+
+  return {
+    trxCategory: "ALL",
+    bprId: "",
+    rrn: "",
+    status: "ALL",
+    tglAwal: today,
+    tglAkhir: today,
+    limit: 50,
+    offset: 0,
+  };
+}
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -138,7 +151,7 @@ export default function LogTransaksiPage() {
   const canExport = can(PERMISSIONS.LOG_TRANSAKSI_EXPORT);
   const canSyncGateway = can(PERMISSIONS.LOG_TRANSAKSI_SYNC_GATEWAY);
 
-  const [filter, setFilter] = useState<TrxLogFilterState>(defaultFilter);
+  const [filter, setFilter] = useState<TrxLogFilterState>(createDefaultFilter);
   const [rows, setRows] = useState<TrxLogItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -153,9 +166,19 @@ export default function LogTransaksiPage() {
   const loadData = async (nextFilter = filter) => {
     if (!canView) return;
 
+    const normalizedFilter = {
+      ...nextFilter,
+      bprId: nextFilter.bprId.trim(),
+    };
+
+    if (!normalizedFilter.bprId) {
+      window.alert("BPR ID wajib diisi.");
+      return;
+    }
+
     try {
       setLoading(true);
-      const result = await getTrxLogList(nextFilter);
+      const result = await getTrxLogList(normalizedFilter);
       setRows(result);
     } catch (error) {
       console.error(error);
@@ -245,11 +268,6 @@ export default function LogTransaksiPage() {
     }
   };
 
-  useEffect(() => {
-    void loadData(defaultFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   if (!canView) {
     return (
       <div className="rounded-2xl border bg-white p-8 text-center text-sm text-red-600 shadow-sm">
@@ -299,8 +317,8 @@ export default function LogTransaksiPage() {
         onChange={setFilter}
         onSearch={() => void loadData(filter)}
         onReset={() => {
-          setFilter(defaultFilter);
-          void loadData(defaultFilter);
+          setFilter(createDefaultFilter());
+          setRows([]);
         }}
       />
 

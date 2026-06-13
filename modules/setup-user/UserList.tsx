@@ -18,6 +18,7 @@ import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { DashboardUser } from "./types";
 import UserFlags from "./UserFlags";
 import { isUserLocked } from "./utils";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   users: DashboardUser[];
@@ -81,7 +82,7 @@ export default function UserList({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border">
+      <HorizontalDragScroll className="rounded-xl border">
         <table className="w-full min-w-[1100px] text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
@@ -192,7 +193,7 @@ export default function UserList({
             )}
           </tbody>
         </table>
-      </div>
+      </HorizontalDragScroll>
     </div>
   );
 }

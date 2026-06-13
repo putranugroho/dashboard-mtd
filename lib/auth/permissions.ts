@@ -71,6 +71,10 @@ export const PERMISSIONS = {
   MONITORING_USER_ACCOUNT_SEARCH: "monitoring_user_account.search",
   MONITORING_USER_ACCOUNT_EXPORT: "monitoring_user_account.export",
 
+  MONITORING_AKUN_COLL_ME_VIEW: "monitoring_akun_coll_me.view",
+  MONITORING_AKUN_COLL_ME_SEARCH: "monitoring_akun_coll_me.search",
+  MONITORING_AKUN_COLL_ME_EXPORT: "monitoring_akun_coll_me.export",
+
   MONITORING_AKUN_IBPR_VIEW: "monitoring_akun_ibpr.view",
   MONITORING_AKUN_IBPR_SEARCH: "monitoring_akun_ibpr.search",
   MONITORING_AKUN_IBPR_EXPORT: "monitoring_akun_ibpr.export",

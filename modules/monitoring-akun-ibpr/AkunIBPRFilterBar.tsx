@@ -28,8 +28,8 @@ export default function AkunIBPRFilterBar({
             Monitoring Akun IBPR
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Pantau account dari tabel users_ibpr berdasarkan token, lock, delete,
-            device, dan mode development.
+            Pantau account dari tabel users_ibpr berdasarkan token, lock, status,
+            device, dan server.
           </p>
         </div>
 
@@ -43,8 +43,8 @@ export default function AkunIBPRFilterBar({
         <div className="md:col-span-2">
           <BprSelect
             value={filter.bprId}
-            label="Filter BPR"
-            placeholder="Semua BPR"
+            label="BPR *"
+            placeholder="Pilih BPR"
             disabled={loading}
             onChange={(bprId) => onChange({ ...filter, bprId })}
           />
@@ -70,7 +70,7 @@ export default function AkunIBPRFilterBar({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700">Lock</label>
+          <label className="text-sm font-semibold text-gray-700">Blokir</label>
           <select
             value={filter.statusLock}
             disabled={loading}
@@ -82,14 +82,13 @@ export default function AkunIBPRFilterBar({
             }
             className="h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:bg-gray-100"
           >
-            <option value="ALL">Semua Lock</option>
-            <option value="LOCKED">Locked</option>
-            <option value="UNLOCKED">Unlocked</option>
+            <option value="LOCKED">Yes</option>
+            <option value="UNLOCKED">No</option>
           </select>
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700">Deleted</label>
+          <label className="text-sm font-semibold text-gray-700">Status</label>
           <select
             value={filter.statusDelete}
             disabled={loading}
@@ -111,7 +110,7 @@ export default function AkunIBPRFilterBar({
       <div className="mt-3 grid gap-3 md:grid-cols-5">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700">
-            Development
+            Server
           </label>
           <select
             value={filter.development}
@@ -124,7 +123,6 @@ export default function AkunIBPRFilterBar({
             }
             className="h-11 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:bg-gray-100"
           >
-            <option value="ALL">Semua Mode</option>
             <option value="DEVELOPMENT">Development</option>
             <option value="PRODUCTION">Production</option>
           </select>

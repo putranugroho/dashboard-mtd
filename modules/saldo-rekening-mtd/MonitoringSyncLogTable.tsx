@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import type { SaldoMTDSyncLogItem } from "@/lib/api/saldo-mtd";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: SaldoMTDSyncLogItem[];
@@ -35,7 +36,8 @@ export default function MonitoringSyncLogTable({
 
       <div className="min-h-0 flex-1 overflow-hidden rounded-xl border">
         <div className="h-full overflow-auto">
-          <table className="w-full min-w-[980px] border-collapse text-xs">
+          <HorizontalDragScroll>
+            <table className="w-full min-w-[980px] border-collapse text-xs">
             <thead className="sticky top-0 z-10 bg-gray-50 uppercase text-gray-500 shadow-sm">
               <tr>
                 <th className="px-3 py-2 text-left">Waktu</th>
@@ -118,7 +120,8 @@ export default function MonitoringSyncLogTable({
                 ))
               )}
             </tbody>
-          </table>
+            </table>
+          </HorizontalDragScroll>
         </div>
       </div>
     </div>

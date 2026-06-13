@@ -8,6 +8,7 @@ import { getAccountingHistory } from "@/lib/api/accounting-history";
 import { CoreHistoryTrxItem, getCoreHistoryTrx } from "@/lib/api/history-trx";
 import { RekonsiliasiRow, RekonTransactionDiffResult } from "./types";
 import { formatCurrency } from "./utils";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   row: RekonsiliasiRow;
@@ -248,6 +249,8 @@ function TransactionTable({
         </span>
       </div>
 
+      <HorizontalDragScroll>
+        <div className="min-w-[900px]">
       <div className="grid grid-cols-[130px_180px_180px_1fr_150px] gap-2 text-sm font-semibold text-gray-600">
         <div>Tgl Trans</div>
         <div>No Dok</div>
@@ -278,6 +281,8 @@ function TransactionTable({
           ))
         )}
       </div>
+        </div>
+      </HorizontalDragScroll>
     </div>
   );
 }

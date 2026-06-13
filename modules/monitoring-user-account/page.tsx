@@ -16,7 +16,7 @@ const initialFilter: UserAccountFilter = {
   bprId: "",
   role: "ALL",
   statusToken: "ALL",
-  statusDelete: "ALL",
+  statusDelete: "ACTIVE",
   keyword: "",
 };
 
@@ -64,7 +64,7 @@ function downloadCsv(filename: string, rows: UserAccountItem[]) {
     "No Identitas",
     "Has Token",
     "Token",
-    "Is Deleted",
+    "Status",
     "Created At",
     "Updated At",
     "Deleted At",
@@ -112,10 +112,17 @@ export default function MonitoringUserAccountPage() {
   const [data, setData] = useState<UserAccountItem[]>([]);
 
   const loadData = async () => {
+    const bprId = filter.bprId.trim();
+
+    if (!bprId) {
+      window.alert("BPR wajib diisi.");
+      return;
+    }
+
     try {
       setLoading(true);
       const result = await getMonitoringUserAccounts({
-        bprId: filter.bprId,
+        bprId,
         role: filter.role,
       });
       setData(result);
@@ -130,11 +137,6 @@ export default function MonitoringUserAccountPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
@@ -177,6 +179,7 @@ export default function MonitoringUserAccountPage() {
         loading={loading}
         onChange={setFilter}
         onReload={loadData}
+        canSearch={canSearch}
       />
 
       <UserAccountSummaryCards summary={summary} />

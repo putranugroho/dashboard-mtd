@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TcodeItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: TcodeItem[];
@@ -22,7 +23,8 @@ type Props = {
 export default function TcodeTable({ data, onEdit, canSave = true }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border bg-white">
-      <Table>
+      <HorizontalDragScroll>
+        <Table className="min-w-[820px]">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[140px]">Kode</TableHead>
@@ -67,7 +69,8 @@ export default function TcodeTable({ data, onEdit, canSave = true }: Props) {
             ))
           )}
         </TableBody>
-      </Table>
+        </Table>
+      </HorizontalDragScroll>
     </div>
   );
 }

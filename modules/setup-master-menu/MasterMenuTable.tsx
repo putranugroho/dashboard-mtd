@@ -5,6 +5,7 @@ import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MasterMenuItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: MasterMenuItem[];
@@ -18,7 +19,7 @@ export default function MasterMenuTable({
   onDelete,
 }: Props) {
   return (
-    <div className="overflow-x-auto rounded-2xl border bg-white">
+    <HorizontalDragScroll className="rounded-2xl border bg-white">
       <table className="w-full min-w-[1180px] border-collapse text-sm">
         <thead>
           <tr className="border-b bg-gray-50 text-left">
@@ -116,6 +117,6 @@ export default function MasterMenuTable({
           )}
         </tbody>
       </table>
-    </div>
+    </HorizontalDragScroll>
   );
 }

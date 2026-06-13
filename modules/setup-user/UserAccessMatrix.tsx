@@ -4,6 +4,7 @@ import { ArrowLeft, Save, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import PermissionButton from "@/components/auth/PermissionButton";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { AccessGroup, DashboardUser } from "./types";
 import { actionLabels } from "./constants";
@@ -90,7 +91,7 @@ export default function UserAccessMatrix({
           Memuat matrix akses...
         </div>
       ) : groups.length ? (
-        <div className="overflow-x-auto rounded-xl border">
+        <HorizontalDragScroll className="rounded-xl border">
           <table className="w-full min-w-[900px] text-sm">
             <thead className="bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
@@ -135,7 +136,7 @@ export default function UserAccessMatrix({
               ))}
             </tbody>
           </table>
-        </div>
+        </HorizontalDragScroll>
       ) : (
         <div className="rounded-xl border border-dashed p-10 text-center text-sm text-gray-500">
           Data master fasilitas belum tersedia. Jalankan seed `mst_dashboard_facility` terlebih dahulu.

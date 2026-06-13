@@ -2,6 +2,7 @@
 
 import { RekonsiliasiRow } from "./types";
 import { formatCurrency } from "./utils";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   rows: RekonsiliasiRow[];
@@ -55,7 +56,8 @@ export default function RekonsiliasiTable({
         Rekonsiliasi Saldo
       </h2>
 
-      <div className="grid grid-cols-[70px_1.15fr_140px_140px_140px_1fr_130px] gap-x-3 gap-y-3">
+      <HorizontalDragScroll>
+        <div className="grid min-w-[1180px] grid-cols-[70px_1.15fr_140px_140px_140px_1fr_130px] gap-x-3 gap-y-3">
         <div className="text-center text-sm font-semibold text-gray-700">
           Rek/GL
         </div>
@@ -152,7 +154,8 @@ export default function RekonsiliasiTable({
             </CellBox>
           </div>
         ))}
-      </div>
+        </div>
+      </HorizontalDragScroll>
     </div>
   );
 }

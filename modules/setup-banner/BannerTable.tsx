@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { resolveBannerAssetUrl } from "@/lib/api/banner";
 import { BannerItem } from "./types";
+import HorizontalDragScroll from "../shared/HorizontalDragScroll";
 
 type Props = {
   data: BannerItem[];
@@ -22,7 +23,7 @@ function TypeBadge({ type }: { type: BannerItem["banner_type"] }) {
 
 export default function BannerTable({ data, onEdit, onDelete, onPreview }: Props) {
   return (
-    <div className="overflow-x-auto">
+    <HorizontalDragScroll>
       <table className="w-full min-w-[980px] border-collapse text-sm">
         <thead>
           <tr className="border-b bg-gray-50 text-left">
@@ -112,6 +113,6 @@ export default function BannerTable({ data, onEdit, onDelete, onPreview }: Props
           )}
         </tbody>
       </table>
-    </div>
+    </HorizontalDragScroll>
   );
 }
