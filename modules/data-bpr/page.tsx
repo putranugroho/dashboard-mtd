@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Search, Save } from "lucide-react";
+import { Loader2, Search, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -28,31 +28,6 @@ import {
   uploadBprLogo,
 } from "@/lib/api/bpr";
 
-const emptyProfile = (bprId: string): BprProfile => ({
-  bpr_id: bprId,
-  nama_bpr: "",
-  alamat: "",
-  direktur_nama: "",
-  direktur_hp: "",
-  pic_nama: "",
-  pic_hp: "",
-  head_teller_nama: "",
-  head_teller_hp: "",
-  email: "",
-  tanggal_bergabung: "",
-  url_gateway: "",
-  url_collme: "",
-  url_medfo: "",
-  url_hrm: "",
-  url_core: "",
-  kode_pos: "",
-  logo_bpr: "",
-  is_active: true,
-  is_existing_profile: false,
-  create_super_admin: true,
-  create_system_user: true,
-});
-
 export default function DataBprPage() {
   const [searchCode, setSearchCode] = useState("");
   const [selectedCode, setSelectedCode] = useState("");
@@ -66,39 +41,6 @@ export default function DataBprPage() {
   const { can } = useSession();
   const canSave = can(PERMISSIONS.DATA_BPR_SAVE);
   const canRelasi = can(PERMISSIONS.DATA_BPR_RELASI);
-
-  const handleSearch = async () => {
-    const code = searchCode.trim();
-    if (!code) return;
-
-    try {
-      setLoading(true);
-      const result = await getBprDetailWithTcodes(code);
-
-      const nextProfile = result.profile ?? createEmptyBprProfile(code);
-      const isExisting = nextProfile.is_existing_profile === true;
-
-      setSelectedCode(code);
-      setProfile(
-        normalizeBprProfile(nextProfile, code, {
-          defaultExisting: isExisting,
-          defaultProvisioning: !isExisting,
-        })
-      );
-      setLogoFile(null);
-      setTcodes(result.tcodes ?? []);
-    } catch (error) {
-      console.error(error);
-      setSelectedCode(code);
-      setProfile(createEmptyBprProfile(code));
-      setTcodes([]);
-      window.alert(
-        error instanceof Error ? error.message : "Gagal memuat data BPR"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSearchBank = async () => {
     const term = searchCode.trim();
@@ -197,6 +139,16 @@ export default function DataBprPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClearSelectedBank = () => {
+    setSearchCode("");
+    setSelectedCode("");
+    setSelectedBank(null);
+    setSearchResults([]);
+    setProfile(createEmptyBprProfile(""));
+    setTcodes([]);
+    setLogoFile(null);
   };
 
   const handleProfileChange = (patch: Partial<BprProfile>) => {
@@ -361,11 +313,27 @@ export default function DataBprPage() {
                     setSelectedBank(null);
                   }}
                   placeholder="Cari kode / nama bank"
-                  className="pl-9"
+                  className={selectedBank ? "pl-9 pr-10" : "pl-9"}
+                  readOnly={selectedBank !== null}
                 />
+
+                {selectedBank ? (
+                  <button
+                    type="button"
+                    onClick={handleClearSelectedBank}
+                    className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                    title="Clear pilihan BPR"
+                  >
+                    <X className="size-4" />
+                  </button>
+                ) : null}
               </div>
 
-              <Button type="button" onClick={handleSearchBank} disabled={searchingBank}>
+              <Button
+                type="button"
+                onClick={handleSearchBank}
+                disabled={searchingBank || selectedBank !== null}
+              >
                 {searchingBank ? (
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 ) : (

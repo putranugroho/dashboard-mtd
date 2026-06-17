@@ -113,8 +113,10 @@ export default function BprForm({
           <Label>Nama BPR</Label>
           <Input
             value={value.nama_bpr}
-            onChange={(e) => onChange({ nama_bpr: e.target.value })}
-            placeholder="Nama BPR"
+            readOnly
+            disabled
+            placeholder="Nama BPR dari master sandi bank"
+            className="bg-gray-50 text-gray-700"
           />
         </div>
       </div>
