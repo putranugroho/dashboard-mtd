@@ -92,9 +92,15 @@ export default function BprForm({
           </p>
         </div>
 
-        <Badge variant={value.is_active ? "default" : "outline"}>
-          {value.is_active ? "Active" : "Inactive"}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={value.is_active ? "default" : "outline"}>
+            {value.is_active ? "Active" : "Inactive"}
+          </Badge>
+
+          <Badge variant={value.is_existing_profile ? "default" : "outline"}>
+            {value.is_existing_profile ? "Sudah Terdaftar" : "Belum Terdaftar"}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

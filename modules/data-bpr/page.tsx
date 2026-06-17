@@ -1,7 +1,7 @@
 "use client";
 
-import { Search, Save } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Search, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import PermissionButton from "@/components/auth/PermissionButton";
@@ -11,7 +11,11 @@ import { Input } from "@/components/ui/input";
 
 import BprForm from "./BprForm";
 import BprTcodeMapping from "./BprTcodeMapping";
-import { BprProfile, BprTcodeItem } from "./types";
+import {
+  BprProfile,
+  BprTcodeItem,
+  SandiBankSearchItem,
+} from "./types";
 import {
   createEmptyBprProfile,
   normalizeBprProfile,
@@ -20,6 +24,7 @@ import {
   getBprDetailWithTcodes,
   saveBprProfile,
   saveBprTcodes,
+  searchSandiBank,
   uploadBprLogo,
 } from "@/lib/api/bpr";
 
@@ -55,6 +60,9 @@ export default function DataBprPage() {
   const [tcodes, setTcodes] = useState<BprTcodeItem[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<SandiBankSearchItem[]>([]);
+  const [searchingBank, setSearchingBank] = useState(false);
+  const [selectedBank, setSelectedBank] = useState<SandiBankSearchItem | null>(null);
   const { can } = useSession();
   const canSave = can(PERMISSIONS.DATA_BPR_SAVE);
   const canRelasi = can(PERMISSIONS.DATA_BPR_RELASI);
@@ -84,6 +92,105 @@ export default function DataBprPage() {
       setSelectedCode(code);
       setProfile(createEmptyBprProfile(code));
       setTcodes([]);
+      window.alert(
+        error instanceof Error ? error.message : "Gagal memuat data BPR"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchBank = async () => {
+    const term = searchCode.trim();
+
+    if (term.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setSearchingBank(true);
+      const result = await searchSandiBank(term);
+      setSearchResults(result);
+    } catch (error) {
+      console.error(error);
+      setSearchResults([]);
+      window.alert(
+        error instanceof Error ? error.message : "Gagal mencari sandi bank"
+      );
+    } finally {
+      setSearchingBank(false);
+    }
+  };
+
+  useEffect(() => {
+    const term = searchCode.trim();
+
+    if (term.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      handleSearchBank();
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [searchCode]);
+
+  const handleSelectBank = async (item: SandiBankSearchItem) => {
+    try {
+      setLoading(true);
+      setSelectedBank(item);
+      setSearchCode(`${item.kode_bank} - ${item.nama}`);
+      setSearchResults([]);
+
+      const result = await getBprDetailWithTcodes(item.kode_bank);
+      const nextProfile = result.profile ?? createEmptyBprProfile(item.kode_bank);
+      const isExisting = nextProfile.is_existing_profile === true;
+
+      setSelectedCode(item.kode_bank);
+      setProfile(
+        normalizeBprProfile(
+          {
+            ...nextProfile,
+            bpr_id: item.kode_bank,
+            nama_bpr: nextProfile.nama_bpr || item.nama,
+          },
+          item.kode_bank,
+          {
+            defaultExisting: isExisting,
+            defaultProvisioning: !isExisting,
+          }
+        )
+      );
+
+      setLogoFile(null);
+      setTcodes(result.tcodes ?? []);
+    } catch (error) {
+      console.error(error);
+
+      const isExisting = item.is_existing_profile === true;
+
+      setSelectedCode(item.kode_bank);
+      setProfile(
+        normalizeBprProfile(
+          {
+            bpr_id: item.kode_bank,
+            nama_bpr: item.nama,
+            is_existing_profile: isExisting,
+          },
+          item.kode_bank,
+          {
+            defaultExisting: isExisting,
+            defaultProvisioning: !isExisting,
+          }
+        )
+      );
+      setTcodes([]);
+
       window.alert(
         error instanceof Error ? error.message : "Gagal memuat data BPR"
       );
@@ -243,18 +350,62 @@ export default function DataBprPage() {
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-            <div className="relative min-w-[260px]">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                value={searchCode}
-                onChange={(e) => setSearchCode(e.target.value)}
-                placeholder="Masukkan BPR ID"
-                className="pl-9"
-              />
+          <div className="relative w-full lg:w-[460px]">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  value={searchCode}
+                  onChange={(e) => {
+                    setSearchCode(e.target.value);
+                    setSelectedBank(null);
+                  }}
+                  placeholder="Cari kode / nama bank"
+                  className="pl-9"
+                />
+              </div>
+
+              <Button type="button" onClick={handleSearchBank} disabled={searchingBank}>
+                {searchingBank ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Search className="mr-2 size-4" />
+                )}
+                Cari
+              </Button>
             </div>
 
-            <Button onClick={handleSearch}>Cari BPR</Button>
+            {searchResults.length > 0 ? (
+              <div className="absolute right-0 z-30 mt-2 max-h-[360px] w-full overflow-auto rounded-xl border bg-white p-2 shadow-lg">
+                {searchResults.map((item) => (
+                  <button
+                    key={`${item.kode_bank}-${item.id}`}
+                    type="button"
+                    onClick={() => handleSelectBank(item)}
+                    className="flex w-full items-start justify-between gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
+                  >
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {item.kode_bank} - {item.nama}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {item.jenis || "-"} {item.tipe ? `• ${item.tipe}` : ""}
+                      </div>
+                    </div>
+
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
+                        item.is_existing_profile
+                          ? "bg-green-50 text-green-700"
+                          : "bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {item.is_existing_profile ? "Sudah Terdaftar" : "Belum Terdaftar"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

@@ -1,5 +1,9 @@
 import { buildApiUrl, postFormData, postJson } from "./client";
-import { BprProfile, BprTcodeItem } from "@/modules/data-bpr/types";
+import {
+  BprProfile,
+  BprTcodeItem,
+  SandiBankSearchItem,
+} from "@/modules/data-bpr/types";
 import { normalizeBprProfile } from "@/modules/data-bpr/bpr-profile-factory";
 
 type ApiResponse<T> = {
@@ -138,4 +142,16 @@ export function resolveBprLogoUrl(fileName?: string) {
   }
 
   return buildApiUrl(`/photo/view?type=logo_bpr&file=${encodeURIComponent(name)}`);
+}
+
+export async function searchSandiBank(term: string) {
+  const res = await postJson<ApiResponse<SandiBankSearchItem[]>>(
+    "/bpr_profile",
+    {
+      action: "search_bank",
+      term,
+    }
+  );
+
+  return Array.isArray(res.data) ? res.data : [];
 }

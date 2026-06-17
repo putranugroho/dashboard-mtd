@@ -34,3 +34,20 @@ export type BprTcodeItem = {
   accounting_ready: boolean;
   accounting_journal_count?: number;
 };
+
+export type SandiBankSearchItem = {
+  id: number;
+  kode_bank: string;
+  bpr_id: string;
+  nama: string;
+  nama_bpr: string;
+  jenis: string;
+  tipe: string;
+  logo: string;
+  logo_cetak: string;
+  fasilitas_atm: string;
+  perbarindo: string;
+  active: string;
+  is_existing_profile: boolean;
+  registration_status: "SUDAH_TERDAFTAR" | "BELUM_TERDAFTAR";
+};
